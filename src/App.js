@@ -39,7 +39,7 @@ class App extends Component {
         let sim = new Simulation(this.state)
         this.setState({
             successRate: null,
-            results: null, 
+            results: [], 
             simulations: sim.i,
             busy: true,
             id: Math.random(0, 1).toString(),
@@ -121,7 +121,7 @@ class App extends Component {
                     </div>
                 </form>
                <div className="right">
-                {this.state.id !== '' ? 
+                {this.state.results.length > 0 ? 
                     (<div>
                         <div className="margin-m">
                             <p>This strategy had a success rate of <strong>{(this.state.successRate * 100).toFixed(2)}%</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
