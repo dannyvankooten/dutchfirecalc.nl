@@ -7,6 +7,7 @@ class Plot extends Component {
         super(props);
 
         this.base = React.createRef();
+        this.drawLine = this.drawLine.bind(this)
     }
 
     componentDidMount() {
@@ -24,7 +25,7 @@ class Plot extends Component {
             this.reset();
         }
 
-        this.draw(nextProps.datasets);
+        this.draw();
     }
 
     init(){
@@ -72,65 +73,68 @@ class Plot extends Component {
 
         // 0 line
         this.ctx.append("line").attr("class", 'zero-line')    
-        this.lines = [];
-        this.domainHash = '';
+        this.lines = []
+        this.domainHash = ''
+        this.lineIndex = 0
     }
 
     reset() {
         this.init();
     }
 
-    draw(datasets) {
-        const last = datasets[this.lines.length];
-        this.yMin = Math.min(this.yMin, d3.min(last))
-        this.yMax = Math.max(this.yMax, d3.max(last))
+    draw() {
+        this.yMin = Math.min(this.yMin, d3.min(this.props.datasets[this.lines.length]))
+        this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[this.lines.length]))
+
         const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`
-        const diff = this.domainHash !== domainHash;
-        const graph = this.ctx;
+        this.diff = this.domainHash !== domainHash;
         
-        if (diff) {
+        if (this.diff) {
             //this.x = this.x 
             this.y = this.y.domain([this.yMin, this.yMax])
             this.line = this.line.y((d, i) => this.y(d))
             this.yAxis = this.yAxis.scale(this.y)
             //this.xAxis = this.xAxis
            
-            graph.select('.y.axis').call(this.yAxis);
-            graph.select('.x.axis').call(this.xAxis)
-            graph.select(".zero-line")
+            this.ctx.select('.y.axis').call(this.yAxis);
+            this.ctx.select('.x.axis').call(this.xAxis)
+            this.ctx.select(".zero-line")
                 .attr("x1", 0) .attr("y1", this.y(0)).attr("x2", this.x(360)).attr("y2",  this.y(0))
                 .attr('stroke-width', 2)
 
             // add the X gridlines
-            graph.select('.x.grid').call(this.yGrid)
+            this.ctx.select('.x.grid').call(this.yGrid)
 
             // // add the Y gridlines
-            graph.select('.y.grid').call(this.xGrid)    
+            this.ctx.select('.y.grid').call(this.xGrid)   
+            
+            // update config hash
+            this.domainHash = domainHash;
         }
         
-        // draw (or update) graph lines when browser sees fit
-        let i = 0;
-        let drawLine = () => {
-            if(this.lines[i]) {
-                // only update this line if something important in the graph dimensions changed
-                if(diff) {
-                    this.lines[i].attr('d', this.line(datasets[i]))
-                }
-            } else {
-                // draw new line
-                this.lines[i] = graph.append('path')
-                    .attr("class", "data-line l"+i)
-                    .attr('d', this.line(datasets[i]))
-                    .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
-            }
-            i++;
+        // (re)draw graph lines when browser sees fit
+        this.lineIndex = 0
+        window.requestAnimationFrame(this.drawLine);   
+    }
 
-            if (i < datasets.length) {
-                window.requestAnimationFrame(drawLine);
+    drawLine() {
+        if(this.lines[this.lineIndex]) {
+            // only update this line if something important in the graph dimensions changed
+            if(this.diff) {
+                this.lines[this.lineIndex].attr('d', this.line(this.props.datasets[this.lineIndex]))
             }
+        } else {
+            // draw new line
+            this.lines[this.lineIndex] = this.ctx.append('path')
+                .attr("class", "data-line l"+this.lineIndex)
+                .attr('d', this.line(this.props.datasets[this.lineIndex]))
+                .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
         }
-
-        window.requestAnimationFrame(drawLine);   
+        
+        // keep going until done
+        if (this.props.id !== '' && ++this.lineIndex < this.props.datasets.length) {
+            window.requestAnimationFrame(this.drawLine);
+        }
     }
 
     render() {

@@ -22,6 +22,9 @@ class App extends Component {
             successRate: null,
             busy: false,            
         }
+
+        this.runSimulation = this.runSimulation.bind(this)
+        this.stopSimulation = this.stopSimulation.bind(this)
     }
 
     runSimulation(evt) {
@@ -29,7 +32,7 @@ class App extends Component {
 
         let sim = new Simulation(this.state)
         this.setState({
-            successRate: null,
+            successRate: 1,
             results: [], 
             simulations: sim.i,
             busy: true,
@@ -39,13 +42,11 @@ class App extends Component {
         })
 
         let tick = () => {
-            // check if user canceled
-            if (!this.state.busy) {
-                return;
-            }
-
+            // perform another run
             sim.run()
-            let state = {
+
+            // update state
+            this.setState({
                 best: sim.best,
                 worst: sim.worst,
                 successRate: sim.successful / sim.i,
@@ -53,10 +54,10 @@ class App extends Component {
                 simulations: sim.i,
                 currentPeriodStart: sim.currentPeriodStart(),
                 currentPeriodEnd: sim.currentPeriodEnd(),
-            }
-            this.setState(state)
+            })
 
-            if (!sim.done()) {
+            // keep going unless done or user canceled
+            if (this.state.busy && !sim.done()) {
                 window.requestAnimationFrame(tick);   
             }
         }
@@ -76,7 +77,7 @@ class App extends Component {
             <div className="container app">
                 <h1>DutchFire Calculator</h1>
 
-                <form className="" onSubmit={this.runSimulation.bind(this)}>
+                <form className="" onSubmit={this.runSimulation}>
                     <div className="margin-m">
                         <label>Initial capital</label>
                         <input type="number" value={this.state.initialCapital} disabled={this.state.busy} onChange={e => this.setState({initialCapital: parseInt(e.target.value)})} step="1000" min="0" />
@@ -106,7 +107,7 @@ class App extends Component {
                     <div className="margin-m">
                         {this.state.busy ? ( 
                             <span>
-                                <button type="button" className="" onClick={this.stopSimulation.bind(this)}>Stop simulation</button>
+                                <button type="button" className="" onClick={this.stopSimulation}>Stop simulation</button>
                                 <span className="l-margin-s small">&mdash; simulating {this.state.currentPeriodStart} - {this.state.currentPeriodEnd}</span>
                             </span>
                         ) : (<button type="submit">Run simulation</button>)}

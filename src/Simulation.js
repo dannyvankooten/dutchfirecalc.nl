@@ -49,9 +49,10 @@ class Simulation {
             carryForward = 0;
         let inflationSeries = df.get("Inflation")
         let yieldSeries = df.get("Yield")
+        let pos;
 
         for(let month=0; month < this.months; month++) {
-            let pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
+            pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
             costs = this.ocf * capital;
             withdrawal = withdrawal * inflationSeries.iloc(pos);
             gains = yieldSeries.iloc(pos) * capital;
@@ -93,8 +94,7 @@ class Simulation {
 
         // if capital capital is obscenely high, write to log...
         if (capital > (this.initialCapital * this.months / 12)) {
-            console.log(this.currentPeriodStart(), "claims a high capital");
-            console.log("End capital of run ", r, " is ", capital);
+            console.log(this.currentPeriodStart(), " claims a high capital of ", capital, " index ", this.i);
         }
 
         return r;
