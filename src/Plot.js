@@ -38,11 +38,28 @@ class Plot extends Component {
             .attr("width", this.width + margin.left + margin.right)
             .attr("height", this.height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-        this.x = d3.scaleLinear().range([0, this.width])
-        this.y = d3.scaleLinear().range([this.height, 0]) 
+        this.xMin = 0;
+        this.xMax = this.props.xMax;
+        this.yMin = 0;
+        this.yMax = 0;
+        this.x = d3.scaleLinear().range([0, this.width]).domain([this.xMin, this.xMax])
+        this.y = d3.scaleLinear().range([this.height, 0])
+        this.line = d3.line().x((d, i) => this.x(i))
+        this.xScale = d3.scaleLinear().range([0, this.width]).domain([this.xMin, this.xMax/12])
+        this.yAxis = d3.axisLeft().scale(this.y)
+        this.xAxis = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12)
+        
+        // limit number of ticks on small screens
+        if (this.width < 600) {
+            this.xAxis.ticks(3)
+            this.yAxis.ticks(3)
+        }
 
+        this.yGrid = d3.axisLeft().scale(this.y).tickSize(-this.width).tickFormat("")
+        this.xGrid = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12).tickSize(this.height).tickFormat("")
+        
         this.ctx.append("g")
             .attr("class", "x axis")
             .attr('transform', 'translate(0,' + (this.height) + ')')
@@ -50,13 +67,13 @@ class Plot extends Component {
         this.ctx.append("g")
             .attr("class", "y axis")
 
+        this.ctx.append("g").attr("class", "grid x")
+        this.ctx.append("g").attr("class", "grid y")
+
         // 0 line
         this.ctx.append("line").attr("class", 'zero-line')    
-
         this.lines = [];
         this.domainHash = '';
-        this.yMin = 0;
-        this.yMax = 0;
     }
 
     reset() {
@@ -64,51 +81,31 @@ class Plot extends Component {
     }
 
     draw(datasets) {
-        if (!datasets || datasets.length < 1) {
-            return;
-        }
-
         const last = datasets[this.lines.length];
-        const yMin = this.yMin = Math.min(this.yMin, d3.min(last))
-        const yMax = this.yMax = Math.max(this.yMax, d3.max(last))
-        const xMin = 0;
-        const xMax = this.props.xMax;
-        const domainHash = `${xMin},${xMax},${yMin},${yMax}`
+        this.yMin = Math.min(this.yMin, d3.min(last))
+        this.yMax = Math.max(this.yMax, d3.max(last))
+        const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`
         const diff = this.domainHash !== domainHash;
         const graph = this.ctx;
         
         if (diff) {
-            this.x = this.x.domain([xMin, xMax])
-            this.y = this.y.domain([yMin, yMax])
-
-            this.line = d3.line()
-                .x((d, i) => this.x(i))
-                .y((d, i) => this.y(d))
-
-            let yAxis = d3.axisLeft().scale(this.y)
-            graph.select('.y.axis').call(yAxis);
-
-            let xScale = d3.scaleLinear().range([0, this.width]).domain([xMin, xMax/12]);
-            let xAxis = d3.axisBottom().scale(xScale).ticks(xMax/12);
-
-            if (this.width < 600) {
-                xAxis.ticks(3);
-            }
-            graph.select('.x.axis').call(xAxis)
+            //this.x = this.x 
+            this.y = this.y.domain([this.yMin, this.yMax])
+            this.line = this.line.y((d, i) => this.y(d))
+            this.yAxis = this.yAxis.scale(this.y)
+            //this.xAxis = this.xAxis
+           
+            graph.select('.y.axis').call(this.yAxis);
+            graph.select('.x.axis').call(this.xAxis)
             graph.select(".zero-line")
                 .attr("x1", 0) .attr("y1", this.y(0)).attr("x2", this.x(360)).attr("y2",  this.y(0))
                 .attr('stroke-width', 2)
 
             // add the X gridlines
-            graph.selectAll(".grid").remove()
-            graph.append("g").attr("class", "grid").call(yAxis.tickSize(-this.width).tickFormat(""))
+            graph.select('.x.grid').call(this.yGrid)
 
             // // add the Y gridlines
-            graph.append("g")			
-                .attr("class", "grid")
-                .call(xAxis.tickSize(this.height).tickFormat(""))    
-
-          
+            graph.select('.y.grid').call(this.xGrid)    
         }
         
         // draw (or update) graph lines when browser sees fit
