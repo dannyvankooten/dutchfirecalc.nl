@@ -99,7 +99,7 @@ class Plot extends Component {
             this.ctx.select('.y.axis').call(this.yAxis);
             this.ctx.select('.x.axis').call(this.xAxis)
             this.ctx.select(".zero-line")
-                .attr("x1", 0) .attr("y1", this.y(0)).attr("x2", this.x(360)).attr("y2",  this.y(0))
+                .attr("x1", 0) .attr("y1", this.y(0)).attr("x2", this.x(this.xMax)).attr("y2",  this.y(0))
                 .attr('stroke-width', 2)
 
             // add the X gridlines

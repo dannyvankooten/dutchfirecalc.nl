@@ -91,7 +91,7 @@ class App extends Component {
                     </div>
                     <div className="margin-m">
                         <label>Duration <small>(years)</small></label>
-                        <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="0" step="1" />
+                        <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="5" max="80" step="1" />
                         
                     </div>
                     <div className="margin-m">
