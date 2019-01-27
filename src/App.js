@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import './App.css';
-
 import Plot from './Plot.js';
-//import Table from './Table.js';
 import Taxes from './Taxes.js';
 import Simulation from './Simulation.js';
 
@@ -11,7 +8,6 @@ const formatter = new Intl.NumberFormat('en-US', {
  currency: 'EUR',
  minimumFractionDigits: 0,
 });
-
 
 class App extends Component {
     constructor(props) {

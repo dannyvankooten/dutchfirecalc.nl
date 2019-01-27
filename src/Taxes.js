@@ -59,9 +59,5 @@ const Taxes = {
     },
 }
 
-console.assert(Taxes['vermogensbelasting 2017'](125000, 0) === 991, "Incorrect tax logic");
-console.assert(Taxes['vermogensbelasting 2017'](1250000, 0) === 17108, "Incorrect tax logic");
-console.assert(Taxes['vermogensbelasting 2018'](130000, 0) === 807, "Incorrect tax logic");
-console.assert(Taxes['vermogensbelasting 2018'](1255000, 0) === 16189, "Incorrect tax logic");
 
 export default Taxes;
