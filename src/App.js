@@ -13,7 +13,7 @@ class App extends Component {
             initialSpending: 32000,
             duration: 30, // years
             pctFees: 0.15, // pct as provided by the user
-            taxStrategy: 'vermogensbelasting 2018', // must exist on Taxes object
+            taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object
             id: '',
             results: [],
             simulations: 0,

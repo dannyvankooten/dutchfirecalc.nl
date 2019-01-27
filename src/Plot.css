@@ -1,0 +1,33 @@
+.plot {
+}
+
+.plot text {
+    font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    color: #222;
+    font-size: 12px;
+}
+.plot .zero-line {
+    stroke: red;
+    stroke-width: 2px;
+    z-indeX: 10;
+}
+
+.plot .tick {
+    color: #222;
+}
+
+
+.plot .grid,
+.plot .grid line {
+    fill: none;
+    color: #ccc;
+    stroke: #ccc;
+    z-index: -1;
+    stroke-width: 1px;
+    opacity: 0.8;
+}
+
+.plot .data-line {
+    fill: none;
+    stroke-width: 1px;
+}

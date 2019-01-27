@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import 'd3-dsv';
 import 'd3-transition';
+import './Plot.css';
 
 class Plot extends Component {
     constructor(props) {
@@ -29,7 +30,7 @@ class Plot extends Component {
     }
 
     init(){
-        const margin = {top: 10, right: 10, bottom: 20, left: 70};
+        const margin = {top: 20, right: 20, bottom: 40, left: 70};
         this.ctx = d3.select(this.base.current)
         this.ctx.selectAll('*').remove();
         this.width = Math.min(window.innerWidth - 40, 860) - margin.left - margin.right;
@@ -44,18 +45,15 @@ class Plot extends Component {
         this.x = d3.scaleLinear().range([0, this.width])
         this.y = d3.scaleLinear().range([this.height, 0]) 
 
-        this.ctx.append("svg:g")
+        this.ctx.append("g")
             .attr("class", "x axis")
             .attr('transform', 'translate(0,' + (this.height) + ')')
 
-        this.ctx.append("svg:g")
+        this.ctx.append("g")
             .attr("class", "y axis")
 
         // 0 line
-        this.ctx.append("line")      
-            .attr("class", 'zero-line')    
-            .style("stroke", "red") 
-            .style('stroke-width', 2)
+        this.ctx.append("line").attr("class", 'zero-line')    
 
         this.drawn = [];
         this.domainHash = '';
@@ -99,12 +97,18 @@ class Plot extends Component {
                 xAxis.ticks(3);
             }
             graph.select('.x.axis').call(xAxis)
-
             graph.select(".zero-line")
-                .attr("x1", 0)
-                .attr("y1", this.y(0))      
-                .attr("x2", this.x(360))     
-                .attr("y2",  this.y(0))
+                .attr("x1", 0) .attr("y1", this.y(0)).attr("x2", this.x(360)).attr("y2",  this.y(0))
+                .attr('stroke-width', 2)
+
+            // add the X gridlines
+            graph.selectAll(".grid").remove()
+            graph.append("g").attr("class", "grid").call(yAxis.tickSize(-this.width).tickFormat(""))
+
+            // // add the Y gridlines
+            graph.append("g")			
+                .attr("class", "grid")
+                .call(xAxis.tickSize(this.height).tickFormat(""))    
 
           
         }
@@ -115,18 +119,14 @@ class Plot extends Component {
             if(this.drawn[i]) {
                 // only update this line if something important in the graph dimensions changed
                 if(diff) {
-                    graph
-                        .select(".line-"+i)
-                        .attr('d', this.line(datasets[i]))
+                    graph.select(".data-line.l"+i).attr('d', this.line(datasets[i]))
                 }
             } else {
                 // draw new line
-                let path = graph.append('svg:path')
-                    .attr("class", "line-"+i)
+                let path = graph.append('path')
+                    .attr("class", "data-line l"+i)
                     .attr('d', this.line(datasets[i]))
                     .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
-                    .attr('stroke-width', 1)
-                    .attr('fill', 'none')
 
                 // animate line
                 let totalLength = path.node().getTotalLength()  

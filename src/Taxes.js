@@ -1,17 +1,4 @@
 const Taxes = {
-    'tax free': (capital, gains) => {
-        return 0;
-    },
-    
-    'vennootschapsbelasting 2021': (capital, gains) => {
-        if (gains < 0) {
-            return 0;
-        }
-        
-        const schijf_1 = Math.max(Math.min(200000, gains), 0)
-        const schijf_2 = Math.max(gains - 200000, 0)
-        return Math.max(Math.round(0.16 * schijf_1 + 0.21 * schijf_2), 0)
-    },
     'vermogensbelasting 2019': (capital, gains) => {
         capital = capital - 30360 ;
         if (capital < 0) {
@@ -70,6 +57,20 @@ const Taxes = {
         const schijf_1 = Math.max(Math.min(200000, gains), 0)
         const schijf_2 = Math.max(gains - 200000, 0)
         return Math.max(Math.round(0.175 * schijf_1 + 0.225 * schijf_2), 0)
+    },
+
+    'vennootschapsbelasting 2021': (capital, gains) => {
+        if (gains < 0) {
+            return 0;
+        }
+        
+        const schijf_1 = Math.max(Math.min(200000, gains), 0)
+        const schijf_2 = Math.max(gains - 200000, 0)
+        return Math.max(Math.round(0.16 * schijf_1 + 0.21 * schijf_2), 0)
+    },
+
+    'tax free': (capital, gains) => {
+        return 0;
     },
     
 }
