@@ -75,6 +75,7 @@ class App extends Component {
         return (
             <div className="container app">
                 <h1>DutchFire Calculator</h1>
+
                 <form className="" onSubmit={this.runSimulation.bind(this)}>
                     <div className="margin-m">
                         <label>Initial capital</label>

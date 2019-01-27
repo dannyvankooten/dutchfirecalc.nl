@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
-import 'd3-dsv';
-import 'd3-transition';
 import './Plot.css';
 
 class Plot extends Component {
@@ -55,7 +53,7 @@ class Plot extends Component {
         // 0 line
         this.ctx.append("line").attr("class", 'zero-line')    
 
-        this.drawn = [];
+        this.lines = [];
         this.domainHash = '';
         this.yMin = 0;
         this.yMax = 0;
@@ -70,7 +68,7 @@ class Plot extends Component {
             return;
         }
 
-        const last = datasets[this.drawn.length];
+        const last = datasets[this.lines.length];
         const yMin = this.yMin = Math.min(this.yMin, d3.min(last))
         const yMax = this.yMax = Math.max(this.yMax, d3.max(last))
         const xMin = 0;
@@ -116,27 +114,17 @@ class Plot extends Component {
         // draw (or update) graph lines when browser sees fit
         let i = 0;
         let drawLine = () => {
-            if(this.drawn[i]) {
+            if(this.lines[i]) {
                 // only update this line if something important in the graph dimensions changed
                 if(diff) {
-                    graph.select(".data-line.l"+i).attr('d', this.line(datasets[i]))
+                    this.lines[i].attr('d', this.line(datasets[i]))
                 }
             } else {
                 // draw new line
-                let path = graph.append('path')
+                this.lines[i] = graph.append('path')
                     .attr("class", "data-line l"+i)
                     .attr('d', this.line(datasets[i]))
                     .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
-
-                // animate line
-                let totalLength = path.node().getTotalLength()  
-                path.attr("stroke-dasharray", totalLength + " " + totalLength)
-                    .attr("stroke-dashoffset", totalLength)
-                    .transition()
-                    .duration(80)
-                    .attr("stroke-dashoffset", 0);
-
-                this.drawn[i] = true;
             }
             i++;
 

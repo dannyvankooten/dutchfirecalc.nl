@@ -42,7 +42,11 @@ class Simulation {
         let r = [];
         let capital = this.initialCapital;
         let withdrawal = this.initialWithdrawal;
-        let gains = 0, taxes = 0, costs = 0, untaxedGains = 0;
+        let gains = 0, 
+            taxes = 0, 
+            costs = 0, 
+            untaxedGains = 0,
+            carryForward = 0;
         let inflationSeries = df.get("Inflation")
         let yieldSeries = df.get("Yield")
 
