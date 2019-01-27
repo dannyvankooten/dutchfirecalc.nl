@@ -66,12 +66,6 @@ class Simulation {
 
             // store rounded capital amount in run results
             r[month] = capital;
-
-            // if capital capital is obscenely high, write to log...
-            if (capital > (this.initialCapital * this.months / 12)) {
-                console.log(this.currentPeriodStart(), "claims a high capital");
-                console.log("End capital of run ", r, " is ", capital);
-            }
         }
 
         // store results
@@ -91,6 +85,12 @@ class Simulation {
             this.best = capital;
         } else if (capital < this.worst) {
             this.worst = capital;
+        }
+
+        // if capital capital is obscenely high, write to log...
+        if (capital > (this.initialCapital * this.months / 12)) {
+            console.log(this.currentPeriodStart(), "claims a high capital");
+            console.log("End capital of run ", r, " is ", capital);
         }
 
         return r;

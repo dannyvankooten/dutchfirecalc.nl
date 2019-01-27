@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import Plot from './Plot.js';
 import Taxes from './Taxes.js';
 import Simulation from './Simulation.js';
-
-const formatter = new Intl.NumberFormat('en-US', {
- style: 'currency',
- currency: 'EUR',
- minimumFractionDigits: 0,
-});
+import Format from './Format.js';
 
 class App extends Component {
     constructor(props) {
@@ -18,7 +13,7 @@ class App extends Component {
             initialSpending: 32000,
             duration: 30, // years
             pctFees: 0.15, // pct as provided by the user
-            taxStrategy: Object.keys(Taxes)[0],
+            taxStrategy: 'vermogensbelasting 2018', // must exist on Taxes object
             id: '',
             results: [],
             simulations: 0,
@@ -76,7 +71,7 @@ class App extends Component {
         })
     }
 
-    render(props) {
+    render() {
         return (
             <div className="container app">
                 <h1>DutchFire Calculator</h1>
@@ -120,16 +115,16 @@ class App extends Component {
                 {this.state.results.length > 0 ? 
                     (<div>
                         <div className="margin-m">
-                            <p>This strategy had a success rate of <strong>{(this.state.successRate * 100).toFixed(2)}%</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
+                            <p>This strategy had a success rate of <strong>{Format.percentage(this.state.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
                         </div>
                         <div className="margin-m">
-                            <Plot xMax={this.state.duration * 12} yMax={this.state.best} yMin={this.state.worst} datasets={this.state.results} id={this.state.id} />
+                            <Plot xMax={this.state.duration * 12} datasets={this.state.results} id={this.state.id} />
                         </div>
                         <div className="small">
                             <ul>
-                                <li>The initial spending amount of {formatter.format(this.state.initialSpending)} is adjusted for inflation each year.</li>
+                                <li>The initial spending amount of {Format.money(this.state.initialSpending)} is adjusted for inflation each year.</li>
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the {this.state.duration} year period.</li>
-                                <li>The lowest and highest portfolio balance at the end of your retirement was <span>{formatter.format(this.state.worst)}</span> and <span>{formatter.format(this.state.best)}</span> respectively (not inflation adjusted).</li>
+                                <li>The lowest and highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.worst)}</span> and <span>{Format.money(this.state.best)}</span> respectively (not inflation adjusted).</li>
                             </ul>
                         </div>
                     </div>) : ''}
