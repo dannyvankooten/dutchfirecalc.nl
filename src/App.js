@@ -41,12 +41,11 @@ class App extends Component {
             currentPeriodEnd: sim.currentPeriodEnd(),
         })
 
-        let batchSize = 12;
+        let batchSize = 12, stop = false;
         let tick = () => {
-
             // perform another batch of runs
             for(var i=0; i<batchSize; i++) {
-                sim.run();
+                stop = sim.run();
             }
             
             // update state
@@ -58,17 +57,16 @@ class App extends Component {
                 simulations: sim.i,
                 currentPeriodStart: sim.currentPeriodStart(),
                 currentPeriodEnd: sim.currentPeriodEnd(),
+                busy: !stop,
             })
 
-            // keep going unless done or user canceled
-            if (this.state.busy && !sim.done()) {
-                window.requestAnimationFrame(tick);   
-            } else {
-                this.stopSimulation()
+            // keep going
+            if (!stop) {
+                window.requestAnimationFrame(tick)
             }
         }
 
-        window.requestAnimationFrame(tick);   
+        window.requestAnimationFrame(tick)
     }
 
     stopSimulation(evt) {
@@ -128,7 +126,7 @@ class App extends Component {
                             <p>This strategy had a success rate of <strong>{Format.percentage(this.state.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
                         </div>
                         <div className="margin-m">
-                            <Plot xMax={this.state.duration * 12} wot={Math.random()} datasets={this.state.results} id={this.state.id} />
+                            <Plot xMax={this.state.duration * 12} draw={!this.state.busy} datasets={this.state.results} id={this.state.id} />
                         </div>
                         <div className="small">
                             <ul>

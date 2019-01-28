@@ -9,6 +9,7 @@ class Plot extends Component {
         super(props);
 
         this.base = React.createRef();
+        this.draw = this.draw.bind(this)
     }
 
     componentDidMount() {
@@ -26,7 +27,9 @@ class Plot extends Component {
             this.reset();
         }
 
-        this.draw();
+        if(this.props.draw) {
+            window.requestAnimationFrame(this.draw)
+        }
     }
 
     init(){
@@ -52,7 +55,6 @@ class Plot extends Component {
         this.xScale = d3.scaleLinear().range([0, this.width]).domain([this.xMin, this.xMax/12])
         this.yAxis = d3.axisLeft().scale(this.y)
         this.xAxis = d3.axisBottom().scale(this.xScale)
-    
 
         this.yGrid = d3.axisLeft().scale(this.y).tickSize(-this.width).tickFormat("")
         this.xGrid = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12).tickSize(this.height).tickFormat("")
@@ -69,7 +71,6 @@ class Plot extends Component {
         this.domainHash = ''
         this.lineIndex = 0
         this.tip = d3Tip().attr('class', 'd3-tip').html((d, i) => `${d.startDate} - ${d.endDate}`)
-
         this.ctx.call(this.tip)
     }
 
@@ -77,8 +78,8 @@ class Plot extends Component {
         this.init();
     }
 
-    draw() {
-        // remove graph node from dom
+    draw() {        
+        // remove graph node from DOM
         const el = this.base.current.firstChild;
         this.base.current.removeChild(el)
 
@@ -112,7 +113,6 @@ class Plot extends Component {
             this.lineIndex = 0;
         }
 
-       
         while(this.lineIndex < this.props.datasets.length) {        
             if (this.lines[this.lineIndex]) {
                 // line was drawn before, update coords
@@ -131,7 +131,7 @@ class Plot extends Component {
             this.lineIndex++;
         }
 
-        // add graph node back to dom now it's ready
+        // add graph node back to DOM
         window.requestAnimationFrame(() => {
             this.base.current.appendChild(el)
         })

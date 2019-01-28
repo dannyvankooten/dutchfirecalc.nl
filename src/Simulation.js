@@ -104,7 +104,7 @@ class Simulation {
             console.log(this.currentPeriodStart(), " claims a high capital of ", capital, " index ", this.i);
         }
 
-        return r;
+        return this.done()
     }
 
     done() {
