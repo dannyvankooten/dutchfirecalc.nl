@@ -39,9 +39,9 @@ class Simulation {
     }
 
     run() {
-        let r = [];
         let capital = this.initialCapital;
         let withdrawal = this.initialWithdrawal;
+        let r = [capital];
         let gains = 0, 
             taxes = 0, 
             costs = 0, 
@@ -51,7 +51,7 @@ class Simulation {
         let yieldSeries = df.get("Yield")
         let pos;
 
-        for(let month=0; month < this.months; month++) {
+        for(let month=1; month <= this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
             costs = this.ocf * capital;
             withdrawal = withdrawal * inflationSeries.iloc(pos);
@@ -98,8 +98,6 @@ class Simulation {
         // recompute best & worst stats
         if (capital > this.best)  {
             this.best = capital;
-        } else if (capital < this.worst) {
-            this.worst = capital;
         }
 
         // if capital capital is obscenely high, write to log...

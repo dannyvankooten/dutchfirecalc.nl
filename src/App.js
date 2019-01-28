@@ -31,33 +31,35 @@ class App extends Component {
         evt.preventDefault();
 
         let sim = new Simulation(this.state)
+        let runId = Math.random(0, 1).toString()
         this.setState({
             successRate: 1,
             results: [], 
             simulations: sim.i,
             busy: true,
-            id: Math.random(0, 1).toString(),
+            id: runId,
             currentPeriodStart: sim.currentPeriodStart(),
             currentPeriodEnd: sim.currentPeriodEnd(),
         })
 
-        let batchSize = 12, stop = false;
+        let batchSize = 12
+        let stop = false
         let tick = () => {
             // perform another batch of runs
-            for(var i=0; i<batchSize; i++) {
+            for(var i=0; i<batchSize && !stop; i++) {
                 stop = sim.run();
             }
             
             // update state
             this.setState({
                 best: sim.best,
-                worst: sim.worst,
                 successRate: sim.successful / sim.i,
                 results: sim.results,
                 simulations: sim.i,
                 currentPeriodStart: sim.currentPeriodStart(),
                 currentPeriodEnd: sim.currentPeriodEnd(),
                 busy: !stop,
+                id: !stop ? runId : '',
             })
 
             // keep going
@@ -69,7 +71,7 @@ class App extends Component {
         window.requestAnimationFrame(tick)
     }
 
-    stopSimulation(evt) {
+    stopSimulation() {
         this.setState({
             id: '',
             busy: false,
