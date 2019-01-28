@@ -31,3 +31,10 @@
     fill: none;
     stroke-width: 1px;
 }
+
+.d3-tip {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    z-index: 10;
+}

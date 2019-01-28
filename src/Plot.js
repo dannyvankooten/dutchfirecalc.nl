@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import * as d3 from 'd3';
+import * as d3 from "d3";
+import d3Tip from "d3-tip";
+
 import './Plot.css';
 
 class Plot extends Component {
@@ -49,13 +51,8 @@ class Plot extends Component {
         this.line = d3.line().x((d, i) => this.x(i))
         this.xScale = d3.scaleLinear().range([0, this.width]).domain([this.xMin, this.xMax/12])
         this.yAxis = d3.axisLeft().scale(this.y)
-        this.xAxis = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12)
-        
-        // limit number of ticks on small screens
-        if (this.width < 600) {
-            this.xAxis.ticks(3)
-            this.yAxis.ticks(3)
-        }
+        this.xAxis = d3.axisBottom().scale(this.xScale)
+    
 
         this.yGrid = d3.axisLeft().scale(this.y).tickSize(-this.width).tickFormat("")
         this.xGrid = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12).tickSize(this.height).tickFormat("")
@@ -71,6 +68,9 @@ class Plot extends Component {
         this.lines = []
         this.domainHash = ''
         this.lineIndex = 0
+        this.tip = d3Tip().attr('class', 'd3-tip').html((d, i) => `Hi from ${i} ${d}`)
+
+        this.ctx.call(this.tip)
     }
 
     reset() {
@@ -79,7 +79,6 @@ class Plot extends Component {
 
     draw() {
         for(var i = this.lines.length; i < this.props.datasets.length; i++) {
-            this.yMin = Math.min(this.yMin, d3.min(this.props.datasets[i]))
             this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[i]))
         }
 
@@ -109,7 +108,6 @@ class Plot extends Component {
         }
 
         while(this.lineIndex < this.props.datasets.length) {
-
             if (this.lines[this.lineIndex]) {
                   // only update this line if something important in the graph dimensions changed
                 this.lines[this.lineIndex].attr('d', this.line(this.props.datasets[this.lineIndex]))
@@ -119,6 +117,8 @@ class Plot extends Component {
                     .attr("class", "data-line l"+this.lineIndex)
                     .attr('d', this.line(this.props.datasets[this.lineIndex]))
                     .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
+                    .on('mouseover', this.tip.show)
+                    .on('mouseout', this.tip.hide)
             }
             
             this.lineIndex++;

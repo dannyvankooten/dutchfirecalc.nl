@@ -69,6 +69,12 @@ class Simulation {
             // calculate capital after changes
             capital = parseInt(capital + gains - costs - taxes - withdrawal);
 
+            // did we reach EOL?
+            if (capital < 0) {
+                r[month] = 0;
+                break;
+            }
+
             // store rounded capital amount in run results
             r[month] = capital;
         }
