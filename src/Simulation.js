@@ -93,11 +93,11 @@ class Simulation {
         // recompute success rate
         if (capital > 0) {
             this.successful++;
-        }
 
-        // recompute best & worst stats
-        if (capital > this.best)  {
-            this.best = capital;
+             // recompute best & worst stats
+            if (capital > this.best)  {
+                this.best = capital;
+            }
         }
 
         // if capital capital is obscenely high, write to log...
