@@ -12,7 +12,7 @@ it('calculates taxes correctly', () => {
 
             strategy: 'vermogensbelasting 2017',
             input: [125000, 0],
-            output: 991,
+            output: 990,
         },
         { 
             // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/prive/vermogen_en_aanmerkelijk_belang/vermogen/belasting_betalen_over_uw_vermogen/grondslag_sparen_en_beleggen/berekenen_belasting_over_uw_inkomsten_uit_vermogen_vanaf_2017/voorbeeld-alleenstaande-met-125.000-euro-spaargeld
