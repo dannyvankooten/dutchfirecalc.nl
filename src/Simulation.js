@@ -56,11 +56,14 @@ class Simulation {
             costs = this.ocf * capital;
             withdrawal = withdrawal * inflationSeries.iloc(pos);
             gains = yieldSeries.iloc(pos) * capital;
-            untaxedGains += gains
-
+            untaxedGains = untaxedGains + gains
+          
             // calculate taxes every 12 months
             if (month % 12 === 0 && typeof(this.taxFunction) === "function") {
-                taxes = this.taxFunction(capital, untaxedGains);
+                taxes = this.taxFunction(capital, untaxedGains, carryForward);
+
+                // calculate losses to carry forward to next tax cycle 
+                carryForward = Math.min(0, carryForward + untaxedGains)
                 untaxedGains = 0;
             } else {
                 taxes = 0;

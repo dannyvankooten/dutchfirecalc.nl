@@ -95,6 +95,11 @@ class Plot extends Component {
             this.line = this.line.y((d, i) => this.y(d))
             this.yAxis = this.yAxis.scale(this.y)
             //this.xAxis = this.xAxis
+
+            if (window.innerWidth < 680) {
+                this.yAxis.ticks(3)
+                this.xAxis.ticks(3)
+            }
            
             this.ctx.select('.y.axis').call(this.yAxis);
             this.ctx.select('.x.axis').call(this.xAxis)
