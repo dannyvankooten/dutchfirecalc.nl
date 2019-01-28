@@ -81,9 +81,9 @@ class App extends Component {
     render() {
         return (
             <div className="container app">
-                <h1>DutchFire Calculator</h1>
-                <p>This tool simulates a portfolio's performance using a yearly spending amount that is adjusted for inflation, investment fees and real tax calculation.</p>
-                <p>The simulation uses historical returns for the S&P 500 with dividends re-invested, going back to 1871.</p>
+                <h1>Dutch FIRE Calculator</h1>
+                <p>This tool simulates a portfolio its performance using a yearly spending amount (adjusted for inflation), investment fees and real tax calculation.</p>
+                <p>The simulation uses historical returns for the S&amp;P 500 with dividends re-invested, going back to 1871.</p>
 
                 <form className="" onSubmit={this.runSimulation}>
                     <div className="margin-m">
@@ -134,7 +134,7 @@ class App extends Component {
                             <ul>
                                 <li>The initial spending amount of {Format.money(this.state.initialSpending)} is adjusted for inflation each year.</li>
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the {this.state.duration} year period.</li>
-                                <li>The lowest and highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.worst)}</span> and <span>{Format.money(this.state.best)}</span> respectively (not inflation adjusted).</li>
+                                <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.best)}</span> (not inflation adjusted).</li>
                             </ul>
                         </div>
                     </div>) : ''}
