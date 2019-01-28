@@ -33,8 +33,9 @@
 }
 
 .d3-tip {
-    background-color: rgba(0, 0, 0, 0.8);
+    font-size: 0.8em;
+    background-color: rgba(0, 0, 0, 0.75);
     color: white;
-    padding: 20px;
+    padding: 4px 8px;
     z-index: 10;
 }

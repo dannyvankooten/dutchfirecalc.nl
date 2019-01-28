@@ -80,7 +80,8 @@ class Simulation {
         }
 
         // store results
-        r.start = this.currentPeriodStart(); // to help debug
+        r.startDate = this.currentPeriodStart()
+        r.endDate = this.currentPeriodEnd()
         this.results[this.i] = r;
 
         // increment index

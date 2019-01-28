@@ -68,7 +68,7 @@ class Plot extends Component {
         this.lines = []
         this.domainHash = ''
         this.lineIndex = 0
-        this.tip = d3Tip().attr('class', 'd3-tip').html((d, i) => `Hi from ${i} ${d}`)
+        this.tip = d3Tip().attr('class', 'd3-tip').html((d, i) => `${d.startDate} - ${d.endDate}`)
 
         this.ctx.call(this.tip)
     }
@@ -107,13 +107,14 @@ class Plot extends Component {
             this.lineIndex = 0;
         }
 
-        while(this.lineIndex < this.props.datasets.length) {
+        while(this.lineIndex < this.props.datasets.length) {        
             if (this.lines[this.lineIndex]) {
-                  // only update this line if something important in the graph dimensions changed
+                // line was drawn before, update coords
                 this.lines[this.lineIndex].attr('d', this.line(this.props.datasets[this.lineIndex]))
             } else {
                 // draw new line
                 this.lines[this.lineIndex] = this.ctx.append('path')
+                    .datum(this.props.datasets[this.lineIndex])
                     .attr("class", "data-line l"+this.lineIndex)
                     .attr('d', this.line(this.props.datasets[this.lineIndex]))
                     .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
@@ -122,8 +123,8 @@ class Plot extends Component {
             }
             
             this.lineIndex++;
-        } 
-    }
+        }
+     }
 
     render() {
         return (
