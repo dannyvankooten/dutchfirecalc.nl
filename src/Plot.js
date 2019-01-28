@@ -31,7 +31,7 @@ class Plot extends Component {
 
     init(){
         const margin = {top: 20, right: 20, bottom: 40, left: 70};
-        this.ctx = d3.select(this.base.current)
+        this.ctx = d3.select(this.base.current.firstChild)
         this.ctx.selectAll('*').remove();
         this.width = Math.min(window.innerWidth - 40, 860) - margin.left - margin.right;
         this.height = Math.min(350, this.width / 1.5) - margin.top - margin.bottom;
@@ -78,6 +78,11 @@ class Plot extends Component {
     }
 
     draw() {
+        // remove graph node from dom
+        const el = this.base.current.firstChild;
+        this.base.current.removeChild(el)
+
+        // recalculate plot configuration
         for(var i = this.lines.length; i < this.props.datasets.length; i++) {
             this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[i]))
         }
@@ -107,6 +112,7 @@ class Plot extends Component {
             this.lineIndex = 0;
         }
 
+       
         while(this.lineIndex < this.props.datasets.length) {        
             if (this.lines[this.lineIndex]) {
                 // line was drawn before, update coords
@@ -124,11 +130,16 @@ class Plot extends Component {
             
             this.lineIndex++;
         }
-     }
+
+        // add graph node back to dom now it's ready
+        window.requestAnimationFrame(() => {
+            this.base.current.appendChild(el)
+        })
+    }
 
     render() {
         return (
-            <svg className="plot" ref={this.base}></svg>
+            <div ref={this.base}><svg className="plot"></svg></div>
         )
     }
 }
