@@ -8,14 +8,13 @@ body {
   padding: 24px;
   background: white;
   color: #222;
+  line-height: 1.4;
 }
 
 .container {
   max-width: 860px;
   margin: 0 auto;
 }
-
-
 
 .small,
 small {

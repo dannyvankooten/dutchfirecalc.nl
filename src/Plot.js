@@ -7,21 +7,20 @@ class Plot extends Component {
         super(props);
 
         this.base = React.createRef();
-        this.drawLine = this.drawLine.bind(this)
     }
 
     componentDidMount() {
         this.init();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(prevProps) {
         // do nothing if id is empty
-        if (nextProps.id === '') {
+        if (this.props.id === '') {
             return;
         }
         
         // should we redraw the entire chart?
-        if (nextProps.id !== this.props.id) {
+        if (this.props.id !== prevProps.id) {
             this.reset();
         }
 
@@ -61,12 +60,8 @@ class Plot extends Component {
         this.yGrid = d3.axisLeft().scale(this.y).tickSize(-this.width).tickFormat("")
         this.xGrid = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12).tickSize(this.height).tickFormat("")
         
-        this.ctx.append("g")
-            .attr("class", "x axis")
-            .attr('transform', 'translate(0,' + (this.height) + ')')
-
-        this.ctx.append("g")
-            .attr("class", "y axis")
+        this.ctx.append("g").attr("class", "x axis").attr('transform', 'translate(0,' + (this.height) + ')')
+        this.ctx.append("g").attr("class", "y axis")
 
         this.ctx.append("g").attr("class", "grid x")
         this.ctx.append("g").attr("class", "grid y")
@@ -83,13 +78,13 @@ class Plot extends Component {
     }
 
     draw() {
-        this.yMin = Math.min(this.yMin, d3.min(this.props.datasets[this.lines.length]))
-        this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[this.lines.length]))
+        for(var i = this.lines.length; i < this.props.datasets.length; i++) {
+            this.yMin = Math.min(this.yMin, d3.min(this.props.datasets[i]))
+            this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[i]))
+        }
 
-        const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`
-        this.diff = this.domainHash !== domainHash;
-        
-        if (this.diff) {
+        const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`        
+        if (this.domainHash !== domainHash) {
             //this.x = this.x 
             this.y = this.y.domain([this.yMin, this.yMax])
             this.line = this.line.y((d, i) => this.y(d))
@@ -104,37 +99,30 @@ class Plot extends Component {
 
             // add the X gridlines
             this.ctx.select('.x.grid').call(this.yGrid)
-
-            // // add the Y gridlines
             this.ctx.select('.y.grid').call(this.xGrid)   
             
-            // update config hash
+            // store configuration hash
             this.domainHash = domainHash;
-        }
-        
-        // (re)draw graph lines when browser sees fit
-        this.lineIndex = 0
-        window.requestAnimationFrame(this.drawLine);   
-    }
 
-    drawLine() {
-        if(this.lines[this.lineIndex]) {
-            // only update this line if something important in the graph dimensions changed
-            if(this.diff) {
+            // redraw all lines
+            this.lineIndex = 0;
+        }
+
+        while(this.lineIndex < this.props.datasets.length) {
+
+            if (this.lines[this.lineIndex]) {
+                  // only update this line if something important in the graph dimensions changed
                 this.lines[this.lineIndex].attr('d', this.line(this.props.datasets[this.lineIndex]))
+            } else {
+                // draw new line
+                this.lines[this.lineIndex] = this.ctx.append('path')
+                    .attr("class", "data-line l"+this.lineIndex)
+                    .attr('d', this.line(this.props.datasets[this.lineIndex]))
+                    .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
             }
-        } else {
-            // draw new line
-            this.lines[this.lineIndex] = this.ctx.append('path')
-                .attr("class", "data-line l"+this.lineIndex)
-                .attr('d', this.line(this.props.datasets[this.lineIndex]))
-                .attr('stroke', () => "hsl(" + (Math.random() * 360) + ",100%,50%)")
-        }
-        
-        // keep going until done
-        if (this.props.id !== '' && ++this.lineIndex < this.props.datasets.length) {
-            window.requestAnimationFrame(this.drawLine);
-        }
+            
+            this.lineIndex++;
+        } 
     }
 
     render() {

@@ -41,10 +41,14 @@ class App extends Component {
             currentPeriodEnd: sim.currentPeriodEnd(),
         })
 
+        let batchSize = 12;
         let tick = () => {
-            // perform another run
-            sim.run()
 
+            // perform another batch of runs
+            for(var i=0; i<batchSize; i++) {
+                sim.run();
+            }
+            
             // update state
             this.setState({
                 best: sim.best,
@@ -59,6 +63,8 @@ class App extends Component {
             // keep going unless done or user canceled
             if (this.state.busy && !sim.done()) {
                 window.requestAnimationFrame(tick);   
+            } else {
+                this.stopSimulation()
             }
         }
 
@@ -76,6 +82,8 @@ class App extends Component {
         return (
             <div className="container app">
                 <h1>DutchFire Calculator</h1>
+                <p>This tool simulates a portfolio's performance using a yearly spending amount that is adjusted for inflation, investment fees and real tax calculation.</p>
+                <p>The simulation uses historical returns for the S&P 500 with dividends re-invested, going back to 1871.</p>
 
                 <form className="" onSubmit={this.runSimulation}>
                     <div className="margin-m">
@@ -120,7 +128,7 @@ class App extends Component {
                             <p>This strategy had a success rate of <strong>{Format.percentage(this.state.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
                         </div>
                         <div className="margin-m">
-                            <Plot xMax={this.state.duration * 12} datasets={this.state.results} id={this.state.id} />
+                            <Plot xMax={this.state.duration * 12} wot={Math.random()} datasets={this.state.results} id={this.state.id} />
                         </div>
                         <div className="small">
                             <ul>
