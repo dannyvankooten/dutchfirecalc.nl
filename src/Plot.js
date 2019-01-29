@@ -18,7 +18,7 @@ class Plot extends Component {
 
     componentDidUpdate(prevProps) {
         // do nothing if id is empty
-        if (this.props.id === '') {
+        if (this.props.id === '' && this.lines.length > 0) {
             return;
         }
         

@@ -22,6 +22,8 @@ df = df.set('Yield', df.get('Stock yield').add(df.get('Dividend yield')))
 df = df.set('Inflation', df.get('CPI').pct_change().add(1))
 window.df = df    
 
+const inflationSeries = df.get("Inflation")
+const yieldSeries = df.get("Yield")
 const dateLast = new Date(df.get("Date").iloc(df.length-1))
 
 class Simulation {
@@ -37,34 +39,33 @@ class Simulation {
         this.initialCapital = config.initialCapital
         this.initialWithdrawal = config.initialSpending / 12
         this.ocf = config.pctFees / 12 / 100;
-        this.samples = df.length - this.months - 1
+        this.samples = yieldSeries.length - this.months - 2 // don't ask...
         this.taxFunction = Taxes[config.taxStrategy]
         this.minLength = this.months
     }
 
     run() {
-        let r = [];
-        let capital = this.initialCapital;
-        let withdrawal = this.initialWithdrawal;
-        let gains = 0, 
-            taxes = 0, 
-            costs = 0, 
-            untaxedGains = 0,
-            carryForward = 0;
-        let inflationSeries = df.get("Inflation")
-        let yieldSeries = df.get("Yield")
-        let pos;
-        let month=0;
-
-        for( month; month < this.months; month++) {
+        let capital = this.initialCapital
+        let withdrawal = this.initialWithdrawal
+        let r = [capital]
+        let gains = 0
+        let taxes = 0
+        let costs = 0 
+        let untaxedGains = 0
+        let carryForward = 0
+        let pos
+        const calculateTaxes = typeof(this.taxFunction) === "function"
+        
+        let month = 1
+        for( true; month <= this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
             costs = this.ocf * capital;
-            withdrawal = withdrawal * inflationSeries.iloc(pos);
+            withdrawal = inflationSeries.iloc(pos) * withdrawal;
             gains = yieldSeries.iloc(pos) * capital;
             untaxedGains = untaxedGains + gains
           
             // calculate taxes every 12 months
-            if (month % 12 === 0 && typeof(this.taxFunction) === "function") {
+            if (month % 12 === 0 && calculateTaxes) {
                 taxes = this.taxFunction(capital, untaxedGains, carryForward);
 
                 // calculate losses to carry forward to next tax cycle 
@@ -73,18 +74,19 @@ class Simulation {
             } else {
                 taxes = 0;
             }
-            
+
             // calculate capital after changes
-            capital = parseInt(capital + gains - costs - taxes - withdrawal);
+            capital = parseInt(capital + gains - costs - taxes - withdrawal)
 
             // did we reach EOL?
             if (capital < 0) {
-                r[month] = 0;
+                capital = 0
+                r[month] = 0
                 break;
+            } else {
+                // store rounded capital amount in run results
+                r[month] = capital
             }
-
-            // store rounded capital amount in run results
-            r[month] = capital;
         }
 
         // store results
@@ -93,6 +95,7 @@ class Simulation {
         this.results[this.i] = r;
         this.endResults[this.i] = capital
         this.median = math.median(this.endResults)
+        //console.log(this.endResults)
 
         if (capital > this.max) {
             this.max = capital
@@ -106,16 +109,9 @@ class Simulation {
         if (capital > 0) {
             this.successful++;
         }
-
-        // if capital capital is obscenely high, write to log...
-        if (capital > (this.initialCapital * this.months / 12)) {
-            console.log(this.currentPeriodStart(), " claims a high capital of ", capital, " index ", this.i);
-        }
         
-        // increment index
+        // increment index & signal whether we're done or not
         this.i++;
-
-
         return this.done()
     }
 

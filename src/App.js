@@ -37,10 +37,11 @@ class App extends Component {
 
         let sim = new Simulation(this.state)
         let stop = false;
+        const runId = Math.random(0, 1).toString()
         const batchSize = 12;
         const tick = () => {
             // perform another batch of runs
-            for(var i=0; i<batchSize; i++) {
+            for(var i=0; i<batchSize && !stop; i++) {
                 stop = sim.run();
             }
             
@@ -57,6 +58,7 @@ class App extends Component {
                 currentPeriodStart: sim.currentPeriodStart(),
                 currentPeriodEnd: sim.currentPeriodEnd(),
                 busy: !stop,
+                id: !stop ? runId : '',
             })
 
             // keep going
@@ -65,17 +67,17 @@ class App extends Component {
             }
         }
 
-        // 
         this.setState({
             summary: {
                 max: 0,
                 median: 0,
-                successRate: null
+                successRate: null,
+                minLength: 0,
             },
             results: [], 
             simulations: sim.i,
             busy: true,
-            id: Math.random(0, 1).toString(),
+            id: runId,
             currentPeriodStart: sim.currentPeriodStart(),
             currentPeriodEnd: sim.currentPeriodEnd(),
         }, tick)    
@@ -97,7 +99,7 @@ class App extends Component {
                         <label>Initial yearly spending</label>
                         <input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
                         <div>
-                            <small >(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%</small>
+                            <small >(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
                         </div>
                     </div>
                     <div className="margin-m">
