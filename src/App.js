@@ -3,6 +3,7 @@ import Plot from './Plot.js';
 import Taxes from './Taxes.js';
 import Simulation from './Simulation.js';
 import Format from './Format.js';
+import * as Track from './Track.js';
 
 class App extends Component {
     constructor(props) {
@@ -24,8 +25,17 @@ class App extends Component {
         this.stopSimulation = this.stopSimulation.bind(this)
     }
 
+    componentDidMount() {
+        Track.pageview()
+    }
+
     runSimulation(evt) {
         evt.preventDefault();
+
+        Track.event({
+            category: 'User',
+            action: 'Ran simulation' 
+        })
 
         let sim = new Simulation(this.state)
         this.setState({
@@ -85,7 +95,7 @@ class App extends Component {
         return (
             <div className="container app">
                 <h1>Dutch FIRE Calculator</h1>
-                <p>This tool simulates a portfolio its performance using a yearly spending amount (adjusted for inflation), investment fees and real tax calculation.</p>
+                <p>This tool simulates portfolio performance using a yearly spending amount (adjusted for inflation), investment fees and real tax calculation.</p>
                 <p>The simulation uses historical returns for the S&amp;P 500 with dividends re-invested, going back to 1871.</p>
 
                 <form className="" onSubmit={this.runSimulation}>

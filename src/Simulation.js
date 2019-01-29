@@ -1,4 +1,4 @@
-import { DataFrame, Series } from 'pandas-js'
+import { DataFrame } from 'pandas-js'
 import rawData from "./data.csv.js"
 import * as d3 from 'd3'
 import 'd3-dsv'
