@@ -22,7 +22,6 @@ class App extends Component {
         }
 
         this.runSimulation = this.runSimulation.bind(this)
-        this.stopSimulation = this.stopSimulation.bind(this)
     }
 
     componentDidMount() {
@@ -31,27 +30,12 @@ class App extends Component {
 
     runSimulation(evt) {
         evt.preventDefault();
-
         Track.event({
             category: 'User',
             action: 'Ran simulation' 
         })
 
         let sim = new Simulation(this.state)
-        this.setState({
-            summary: {
-                max: 0,
-                median: 0,
-                successRate: null
-            },
-            results: [], 
-            simulations: sim.i,
-            busy: true,
-            id: Math.random(0, 1).toString(),
-            currentPeriodStart: sim.currentPeriodStart(),
-            currentPeriodEnd: sim.currentPeriodEnd(),
-        })
-
         let stop = false;
         const batchSize = 12;
         const tick = () => {
@@ -81,14 +65,20 @@ class App extends Component {
             }
         }
 
-        tick();
-    }
-
-    stopSimulation(evt) {
+        // 
         this.setState({
-            id: '',
-            busy: false,
-        })
+            summary: {
+                max: 0,
+                median: 0,
+                successRate: null
+            },
+            results: [], 
+            simulations: sim.i,
+            busy: true,
+            id: Math.random(0, 1).toString(),
+            currentPeriodStart: sim.currentPeriodStart(),
+            currentPeriodEnd: sim.currentPeriodEnd(),
+        }, tick)    
     }
 
     render() {
@@ -126,12 +116,8 @@ class App extends Component {
                         </select>
                     </div>
                     <div className="margin-m">
-                        {this.state.busy ? ( 
-                            <span>
-                                <button type="button" className="" onClick={this.stopSimulation}>Stop simulation</button>
-                                <span className="l-margin-s small">&mdash; simulating {this.state.currentPeriodStart} - {this.state.currentPeriodEnd}</span>
-                            </span>
-                        ) : (<button type="submit">Run simulation</button>)}
+                        <button type="submit" disabled={this.state.busy}>{this.state.busy ? 'Please wait' : 'Run simulation'}</button> 
+                        {this.state.busy ? (<span className="l-margin-s small">&mdash; simulating {this.state.currentPeriodStart} - {this.state.currentPeriodEnd}</span>) : null}
                     </div>
                 </form>
                <div className="right">
