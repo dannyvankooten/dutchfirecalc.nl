@@ -15,11 +15,8 @@ class App extends Component {
             pctFees: 0.15, // pct as provided by the user
             taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object
             id: '',
-            results: [],
             simulations: 0,
-            best: null,
-            worst: null,
-            successRate: null,
+            results: [],
             busy: false,            
         }
 
@@ -32,7 +29,11 @@ class App extends Component {
 
         let sim = new Simulation(this.state)
         this.setState({
-            successRate: 1,
+            summary: {
+                max: 0,
+                median: 0,
+                successRate: null
+            },
             results: [], 
             simulations: sim.i,
             busy: true,
@@ -41,8 +42,9 @@ class App extends Component {
             currentPeriodEnd: sim.currentPeriodEnd(),
         })
 
-        let batchSize = 12, stop = false;
-        let tick = () => {
+        let stop = false;
+        const batchSize = 12;
+        const tick = () => {
             // perform another batch of runs
             for(var i=0; i<batchSize; i++) {
                 stop = sim.run();
@@ -50,9 +52,12 @@ class App extends Component {
             
             // update state
             this.setState({
-                best: sim.best,
-                worst: sim.worst,
-                successRate: sim.successful / sim.i,
+                summary: {
+                    max: sim.max,
+                    median: sim.median,
+                    successRate: sim.successful / sim.i,
+                    minLength: sim.minLength,
+                },
                 results: sim.results,
                 simulations: sim.i,
                 currentPeriodStart: sim.currentPeriodStart(),
@@ -62,11 +67,11 @@ class App extends Component {
 
             // keep going
             if (!stop) {
-                window.requestAnimationFrame(tick)
+                window.setTimeout(tick, 1)
             }
         }
 
-        window.requestAnimationFrame(tick)
+        tick();
     }
 
     stopSimulation(evt) {
@@ -123,18 +128,21 @@ class App extends Component {
                 {this.state.results.length > 0 ? 
                     (<div>
                         <div className="margin-m">
-                            <p>This strategy had a success rate of <strong>{Format.percentage(this.state.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
+                            <p>This strategy had a success rate of <strong>{Format.percentage(this.state.summary.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
+                        </div>
+                        <div className="small">
+                            <ul className="summary">
+                                <li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>
+                                <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
+                                <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
+                                <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
+                                <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
+                            </ul>
                         </div>
                         <div className="margin-m">
                             <Plot xMax={this.state.duration * 12} draw={!this.state.busy} datasets={this.state.results} id={this.state.id} />
                         </div>
-                        <div className="small">
-                            <ul>
-                                <li>The initial spending amount of {Format.money(this.state.initialSpending)} is adjusted for inflation each year.</li>
-                                <li>For our purposes, failure means the portfolio was depleted before the end of the {this.state.duration} year period.</li>
-                                <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.best)}</span> (not inflation adjusted).</li>
-                            </ul>
-                        </div>
+                       
                     </div>) : ''}
                 </div>
 

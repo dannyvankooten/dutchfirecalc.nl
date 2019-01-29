@@ -1,10 +1,11 @@
-import { DataFrame } from 'pandas-js';
-import rawData from "./data.csv.js";
-import * as d3 from 'd3';
-import 'd3-dsv';
-import Taxes from './Taxes.js';
+import { DataFrame, Series } from 'pandas-js'
+import rawData from "./data.csv.js"
+import * as d3 from 'd3'
+import 'd3-dsv'
+import Taxes from './Taxes.js'
+import math from 'mathjs';
 
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 const data = d3.csvParse(rawData, r => ({
     Date: r.Date.replace('.', '-'),
     P: parseFloat(r.P),
@@ -14,28 +15,31 @@ const data = d3.csvParse(rawData, r => ({
     CAPE: r.CAPE,
 }))
 
-let df = new DataFrame(data);
+let df = new DataFrame(data)
 df = df.set('Stock yield', df.get('P').pct_change())
 df = df.set('Dividend yield', (df.get('D').divide(df.get('P'))).divide(12))
 df = df.set('Yield', df.get('Stock yield').add(df.get('Dividend yield')))
 df = df.set('Inflation', df.get('CPI').pct_change().add(1))
-window.df = df;     
+window.df = df    
 
-const dateLast = new Date(df.get("Date").iloc(df.length-1)); 
+const dateLast = new Date(df.get("Date").iloc(df.length-1))
 
 class Simulation {
+    results = []
+    endResults = []
+    successful = 0
+    i = 0
+    max = 0
+    median = 0
+
     constructor(config) {        
-        this.months = config.duration * 12;
-        this.initialCapital = config.initialCapital;
-        this.initialWithdrawal = config.initialSpending / 12;
+        this.months = config.duration * 12
+        this.initialCapital = config.initialCapital
+        this.initialWithdrawal = config.initialSpending / 12
         this.ocf = config.pctFees / 12 / 100;
-        this.samples = df.length - this.months - 1;
-        this.results = [];
-        this.i = 0;
-        this.successful = 0;
-        this.best = 0;
-        this.worst = 0;
-        this.taxFunction = Taxes[config.taxStrategy];
+        this.samples = df.length - this.months - 1
+        this.taxFunction = Taxes[config.taxStrategy]
+        this.minLength = this.months
     }
 
     run() {
@@ -50,8 +54,9 @@ class Simulation {
         let inflationSeries = df.get("Inflation")
         let yieldSeries = df.get("Yield")
         let pos;
+        let month=0;
 
-        for(let month=0; month < this.months; month++) {
+        for( month; month < this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
             costs = this.ocf * capital;
             withdrawal = withdrawal * inflationSeries.iloc(pos);
@@ -86,32 +91,36 @@ class Simulation {
         r.startDate = this.currentPeriodStart()
         r.endDate = this.currentPeriodEnd()
         this.results[this.i] = r;
+        this.endResults[this.i] = capital
+        this.median = math.median(this.endResults)
 
-        // increment index
-        this.i++;
+        if (capital > this.max) {
+            this.max = capital
+        }
+
+        if (month < this.minLength) {
+            this.minLength = month;
+        }
 
         // recompute success rate
         if (capital > 0) {
             this.successful++;
         }
 
-        // recompute best & worst stats
-        if (capital > this.best)  {
-            this.best = capital;
-        } else if (capital < this.worst) {
-            this.worst = capital;
-        }
-
         // if capital capital is obscenely high, write to log...
         if (capital > (this.initialCapital * this.months / 12)) {
             console.log(this.currentPeriodStart(), " claims a high capital of ", capital, " index ", this.i);
         }
+        
+        // increment index
+        this.i++;
+
 
         return this.done()
     }
 
     done() {
-        return this.i >= this.samples;
+        return this.i >= this.samples
     }
 
     currentPeriodStart() {
