@@ -1,4 +1,4 @@
-const Taxes = {
+export default {
     'vermogensbelasting 2019': (capital, gains) => {
         capital = capital - 30360 ;
         if (capital < 0) {
@@ -85,7 +85,4 @@ const Taxes = {
         return 0;
     },
     
-}
-
-
-export default Taxes;
+};
