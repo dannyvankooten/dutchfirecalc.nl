@@ -1,4 +1,5 @@
 export default {
+
     'vermogensbelasting 2019': (capital, gains) => {
         capital = capital - 30360 ;
         if (capital < 0) {
@@ -84,5 +85,10 @@ export default {
     'tax free': (capital, gains) => {
         return 0;
     },
-    
+
+    '(voorstel) vermogensbelasting 2022': (capital, gains) => {
+        return Math.max(0, Math.round(0.33 * (0.0533 * capital - 400)));
+    },
+
+
 };
