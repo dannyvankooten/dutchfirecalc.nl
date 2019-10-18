@@ -29,50 +29,50 @@ const dateLast = new Date(df.get("Date").iloc(df.length-1))
 
 class Simulation {
     results = []
-	endResults = []
-	numMinMonths = []
-	medianMinMonths = 0
-	numMaxMonths = []
-	medianMaxMonths = 0
+    endResults = []
+    numMinMonths = []
+    medianMinMonths = 0
+    numMaxMonths = []
+    medianMaxMonths = 0
     successful = 0
     i = 0
-	max = 0
-	median = 0
+    max = 0
+    median = 0
 
     constructor(config) {        
         this.months = config.duration * 12
-		this.initialCapital = config.initialCapital
+        this.initialCapital = config.initialCapital
         this.ocf = config.pctFees / 12 / 100;
         this.samples = yieldSeries.length - this.months - 2 // don't ask...
-		this.taxFunction = Taxes[config.taxStrategy]
-		this.minLength = this.months
-		
-		this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy];	
-		this.initialMinWithdrawal = this.withdrawalStrategy.getInitialMinWithDrawal(config);
-		this.initialMaxWithdrawal = this.withdrawalStrategy.getInitialMaxWithDrawal(config);
+        this.taxFunction = Taxes[config.taxStrategy]
+        this.minLength = this.months
+        
+        this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy];    
+        this.initialMinWithdrawal = this.withdrawalStrategy.getInitialMinWithDrawal(config);
+        this.initialMaxWithdrawal = this.withdrawalStrategy.getInitialMaxWithDrawal(config);
     }
 
     run() {
-		let capital = this.initialCapital
-		let withDrawalMin = this.initialMinWithdrawal;
-		let withDrawalMax = this.initialMaxWithdrawal;
+        let capital = this.initialCapital
+        let withDrawalMin = this.initialMinWithdrawal;
+        let withDrawalMax = this.initialMaxWithdrawal;
         let r = [capital]
         let gains = 0
         let taxes = 0
         let costs = 0 
         let untaxedGains = 0
-		let carryForward = 0
-		let numMonthsWithMinimumWithdrawal = 0
-		let numMonthsWithMaximumWithdrawal = 0
+        let carryForward = 0
+        let numMonthsWithMinimumWithdrawal = 0
+        let numMonthsWithMaximumWithdrawal = 0
         let pos
         const calculateTaxes = typeof(this.taxFunction) === "function"
         
         let month = 1
         for( true; month <= this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
-			costs = this.ocf * capital;
-			withDrawalMin = inflationSeries.iloc(pos) * withDrawalMin;
-			withDrawalMax = inflationSeries.iloc(pos) * withDrawalMax;
+            costs = this.ocf * capital;
+            withDrawalMin = inflationSeries.iloc(pos) * withDrawalMin;
+            withDrawalMax = inflationSeries.iloc(pos) * withDrawalMax;
             gains = yieldSeries.iloc(pos) * capital;
             untaxedGains = untaxedGains + gains
           
@@ -87,16 +87,16 @@ class Simulation {
                 taxes = 0;
             }
 
-			// calculate capital after changes
-			let withDrawal = this.withdrawalStrategy.calculateWithdrawal(r, gains, costs, taxes, withDrawalMin, withDrawalMax);
-			if(withDrawal === withDrawalMin) {
-				numMonthsWithMinimumWithdrawal++;
-			}
-			else if(withDrawal === withDrawalMax) {
-				numMonthsWithMaximumWithdrawal++;
-			}
-			
-			capital = capital + gains - costs - taxes - withDrawal;
+            // calculate capital after changes
+            let withDrawal = this.withdrawalStrategy.calculateWithdrawal(r, gains, costs, taxes, withDrawalMin, withDrawalMax);
+            if(withDrawal === withDrawalMin) {
+                numMonthsWithMinimumWithdrawal++;
+            }
+            else if(withDrawal === withDrawalMax) {
+                numMonthsWithMaximumWithdrawal++;
+            }
+            
+            capital = capital + gains - costs - taxes - withDrawal;
 
             // did we reach EOL?
             if (capital < 0) {
@@ -111,14 +111,14 @@ class Simulation {
 
         // store results
         r.startDate = this.currentPeriodStart()
-		r.endDate = this.currentPeriodEnd()
+        r.endDate = this.currentPeriodEnd()
         this.results[this.i] = r;
-		this.endResults[this.i] = capital
-		this.median = math.median(this.endResults)
-		this.numMinMonths[this.i] = numMonthsWithMinimumWithdrawal
-		this.medianMinMonths = math.median(this.numMinMonths)
-		this.numMaxMonths[this.i] = numMonthsWithMaximumWithdrawal
-		this.medianMaxMonths = math.median(this.numMaxMonths)
+        this.endResults[this.i] = capital
+        this.median = math.median(this.endResults)
+        this.numMinMonths[this.i] = numMonthsWithMinimumWithdrawal
+        this.medianMinMonths = math.median(this.numMinMonths)
+        this.numMaxMonths[this.i] = numMonthsWithMaximumWithdrawal
+        this.medianMaxMonths = math.median(this.numMaxMonths)
 
         if (capital > this.max) {
             this.max = capital
@@ -130,8 +130,8 @@ class Simulation {
 
         // recompute success rate
         if (capital > 0) {
-			this.successful++;
-		}
+            this.successful++;
+        }
         
         // increment index & signal whether we're done or not
         this.i++;

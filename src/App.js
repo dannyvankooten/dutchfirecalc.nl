@@ -13,13 +13,13 @@ class App extends Component {
 
         this.state = {
             initialCapital: 800000,
-			initialSpending: 32000,
-			initialMaxSpending: 48000,
-			initialMinSpending: 28000,
+            initialSpending: 32000,
+            initialMaxSpending: 48000,
+            initialMinSpending: 28000,
             duration: 30, // years
             pctFees: 0.15, // pct as provided by the user
-			taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
-			withDrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
+            taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
+            withDrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
             id: '',
             simulations: 0,
             results: [],
@@ -56,9 +56,9 @@ class App extends Component {
                     max: sim.max,
                     median: sim.median,
                     successRate: sim.successful / sim.i,
-					minLength: sim.minLength,
-					medianMinMonths: sim.medianMinMonths,
-					medianMaxMonths: sim.medianMaxMonths,
+                    minLength: sim.minLength,
+                    medianMinMonths: sim.medianMinMonths,
+                    medianMaxMonths: sim.medianMaxMonths,
                 },
                 results: sim.results,
                 simulations: sim.i,
@@ -102,43 +102,43 @@ class App extends Component {
                         <label>Initial capital</label>
                         <input type="number" value={this.state.initialCapital} disabled={this.state.busy} onChange={e => this.setState({initialCapital: parseInt(e.target.value)})} step="1000" min="0" />
                     </div>
-					<div className="margin-m">
+                    <div className="margin-m">
                         <label>Withdrawal strategy</label>
                         <select onChange={e => this.setState({withDrawalStrategy: e.target.value })} value={this.state.withdrawalStrategy} disabled={this.state.busy}>
                             {Object.keys(WithdrawalStrategies).map(k => (<option key={k} value={k}>{k}</option>))}
                         </select>
-						<div>
-							<small>{WithdrawalStrategies[this.state.withDrawalStrategy].description}</small>
-						</div>
+                        <div>
+                            <small>{WithdrawalStrategies[this.state.withDrawalStrategy].description}</small>
+                        </div>
                     </div>
-					{this.state.withDrawalStrategy === "SWR"
-						? (
-							<div className="margin-m">
-								<label>Initial yearly spending</label>
-								<input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
-								<div>
-									<small>(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
-								</div>
-							</div>
-						) : (
-							<div>
-								<div className="margin-m">
-									<label>Initial maximum yearly spending</label>
-									<input type="number" value={this.state.initialMaxSpending} disabled={this.state.busy} onChange={e => this.setState({initialMaxSpending: parseInt(e.target.value)})} step="100" min="0" /> 
-									<div>
-										<small>(equals a withdrawal rate of {(this.state.initialMaxSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
-									</div>
-								</div>
-								<div className="margin-m">
-									<label>Initial minimum yearly spending</label>
-									<input type="number" value={this.state.initialMinSpending} disabled={this.state.busy} onChange={e => this.setState({initialMinSpending: parseInt(e.target.value)})} step="100" min="0" /> 
-									<div>
-										<small>(equals a withdrawal rate of {(this.state.initialMinSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
-									</div>
-								</div>
-							</div>
-						)
-					}
+                    {this.state.withDrawalStrategy === "SWR"
+                        ? (
+                            <div className="margin-m">
+                                <label>Initial yearly spending</label>
+                                <input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                <div>
+                                    <small>(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="margin-m">
+                                    <label>Initial maximum yearly spending</label>
+                                    <input type="number" value={this.state.initialMaxSpending} disabled={this.state.busy} onChange={e => this.setState({initialMaxSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                    <div>
+                                        <small>(equals a withdrawal rate of {(this.state.initialMaxSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+                                    </div>
+                                </div>
+                                <div className="margin-m">
+                                    <label>Initial minimum yearly spending</label>
+                                    <input type="number" value={this.state.initialMinSpending} disabled={this.state.busy} onChange={e => this.setState({initialMinSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                    <div>
+                                        <small>(equals a withdrawal rate of {(this.state.initialMinSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
                     <div className="margin-m">
                         <label>Duration <small>(years)</small></label>
                         <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="5" max="80" step="1" />
@@ -167,18 +167,18 @@ class App extends Component {
                         </div>
                         <div className="small">
                             <ul className="summary">
-								{this.state.withDrawalStrategy === "SWR"
-								? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
-								: (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
-								{this.state.withDrawalStrategy === "VWR"
-								? (<li>In months where portfolio returns after taxes and withdrawal are less than <span>{Format.money(this.state.initialMaxSpending)}</span> for the past 12 months, withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
+                                {this.state.withDrawalStrategy === "SWR"
+                                ? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
+                                : (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
+                                {this.state.withDrawalStrategy === "VWR"
+                                ? (<li>In months where portfolio returns after taxes and withdrawal are less than <span>{Format.money(this.state.initialMaxSpending)}</span> for the past 12 months, withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
-								{this.state.withDrawalStrategy === "VWR"
-								? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{math.round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
-								{this.state.withDrawalStrategy === "VWR"
-								? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{math.round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
+                                {this.state.withDrawalStrategy === "VWR"
+                                ? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{math.round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
+                                {this.state.withDrawalStrategy === "VWR"
+                                ? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{math.round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
                                 <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
                             </ul>
                         </div>
