@@ -106,8 +106,11 @@ class App extends Component {
                         <select onChange={e => this.setState({withDrawalStrategy: e.target.value })} value={this.state.withdrawalStrategy} disabled={this.state.busy}>
                             {Object.keys(WithdrawalStrategies).map(k => (<option key={k} value={k}>{k}</option>))}
                         </select>
+						<div>
+							<small>{WithdrawalStrategies[this.state.withDrawalStrategy].description}</small>
+						</div>
                     </div>
-					{this.state.withDrawalStrategy === "safe withdrawal rate"
+					{this.state.withDrawalStrategy === "SWR"
 						? (
 							<div className="margin-m">
 								<label>Initial yearly spending</label>
@@ -163,19 +166,15 @@ class App extends Component {
                         </div>
                         <div className="small">
                             <ul className="summary">
-								{this.state.withDrawalStrategy === "safe withdrawal rate"
+								{this.state.withDrawalStrategy === "SWR"
 								? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
 								: (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
-								{this.state.withDrawalStrategy === "variable withdrawal rate (capital preservation)"
+								{this.state.withDrawalStrategy === "VWR"
 								? (<li>In months where portfolio returns minus costs and taxes are less than <span>{Format.money(this.state.initialMaxSpending)}</span> withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
-								{this.state.withDrawalStrategy === "variable withdrawal rate (cut negatives)"
-								? (<li>In months when portfolio results are negative, withdrawal is set to a level equal to spending <span>{Format.money(this.state.initialMinSpending)}</span> per year.</li>) : ''}
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
                                 <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
-								{this.state.withDrawalStrategy.startsWith("variable withdrawal rate")
-									? (<li>{this.state.summary.minWithDrawalYears} and {this.state.summary.maxWithDrawalYears}</li>): ''}
                             </ul>
                         </div>
                         <div className="margin-m">

@@ -29,12 +29,13 @@ const dateLast = new Date(df.get("Date").iloc(df.length-1))
 
 class Simulation {
     results = []
-    endResults = []
+	endResults = []
+	percMinMonths = []
+	percMaxMonths = []
     successful = 0
     i = 0
 	max = 0
 	median = 0
-	threeMinWithDrawalYearsOrLess = 0
 
     constructor(config) {        
         this.months = config.duration * 12
@@ -59,8 +60,8 @@ class Simulation {
         let costs = 0 
         let untaxedGains = 0
 		let carryForward = 0
-		let minWithDrawalYears = 0
-		let maxWithDrawalYears = 0
+		let numMonthsWithMinimumWithdrawal = 0
+		let numMonthsWithMaximumWithdrawal = 0
         let pos
         const calculateTaxes = typeof(this.taxFunction) === "function"
         
@@ -85,11 +86,13 @@ class Simulation {
             }
 
 			// calculate capital after changes
-			let withDrawal = this.withdrawalStrategy.calculateWithdrawal(gains, costs, taxes, withDrawalMin, withDrawalMax);
-			if(withDrawal === withDrawalMin)
-				minWithDrawalYears++;
-			else if(withDrawal === withDrawalMax)
-				maxWithDrawalYears++;
+			let withDrawal = this.withdrawalStrategy.calculateWithdrawal(r, gains, costs, taxes, withDrawalMin, withDrawalMax);
+			if(withDrawal === withDrawalMin) {
+				numMonthsWithMinimumWithdrawal++;
+			}
+			else if(withDrawal === withDrawalMax) {
+				numMonthsWithMaximumWithdrawal++;
+			}
 			
 			capital = capital + gains - costs - taxes - withDrawal;
 
@@ -107,19 +110,11 @@ class Simulation {
         // store results
         r.startDate = this.currentPeriodStart()
 		r.endDate = this.currentPeriodEnd()
-		//r.minWithDrawalYears = minWithDrawalYears;
-		//r.maxWithDrawalYears = maxWithDrawalYears;
         this.results[this.i] = r;
-        this.endResults[this.i] = capital
+		this.endResults[this.i] = capital
+		this.percMinMonths[this.i] = 1 / month * numMonthsWithMinimumWithdrawal
+		this.percMaxMonths[this.i] = 1 / month * numMonthsWithMaximumWithdrawal
 		this.median = math.median(this.endResults)
-		console.log('month', month)
-		console.log('minWithDrawalYears', minWithDrawalYears)
-		console.log('maxnWithDrawalYears', maxWithDrawalYears)
-		if(minWithDrawalYears <= 3)
-			this.threeMinWithDrawalYearsOrLess++;
-		
-		
-        //console.log(this.endResults)
 
         if (capital > this.max) {
             this.max = capital
@@ -131,8 +126,8 @@ class Simulation {
 
         // recompute success rate
         if (capital > 0) {
-            this.successful++;
-        }
+			this.successful++;
+		}
         
         // increment index & signal whether we're done or not
         this.i++;
