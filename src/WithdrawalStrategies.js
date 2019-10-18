@@ -1,7 +1,7 @@
 export default {
 
     'SWR': {
-		description: "Fixed withdrawal rate every month.",
+		description: "Fixed inflation-adjusted withdrawal every month.",
 
 		getInitialMinWithDrawal : (config) => { return config.initialSpending / 12 },
 		getInitialMaxWithDrawal : (config) => { return config.initialSpending / 12 },
@@ -11,7 +11,7 @@ export default {
 	},
 
     'VWR': { // TODO: Better naming
-		description: "Variable withdrawal rate. Between minimum and maximum if trailing 12 months are less than maximum.", // TODO: Better explanation.
+		description: "Variable withdrawal rate. Between minimum and maximum if result of trailing 12 months is less than maximum.", // TODO: Better explanation.
 
 		getInitialMinWithDrawal : (config) => { return config.initialMinSpending / 12 },
 		getInitialMaxWithDrawal : (config) => { return config.initialMaxSpending / 12 },
@@ -19,7 +19,7 @@ export default {
 			let initialCapital = results[0];
 			let lastCapital = results[results.length - 1];
 			if(initialCapital <= lastCapital) { // Don't worry if you have more than enough...
-				return withDrawalMax;
+				return withDrawalMax
 			}
 			
 			let trailing_11 = results.slice(-11, results.length);
@@ -31,7 +31,7 @@ export default {
 			
 			let avg_result_trailing_12_max = (result_trailing_11 + gains - costs - taxes - withDrawalMax) / (trailing_11.length + 1)
 			if(avg_result_trailing_12_max > withDrawalMax) {// Past 12 months returns are more than maximum? Use minimum.
-				return withDrawalMax;
+				return withDrawalMax
 			}
 
 			// In all other cases... find a way to smooth back to using the maximum.

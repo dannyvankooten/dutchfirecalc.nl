@@ -5,6 +5,7 @@ import WithdrawalStrategies from './WithdrawalStrategies.js';
 import Simulation from './Simulation.js';
 import Format from './Format.js';
 import * as Track from './Track.js';
+import math from 'mathjs';
 
 class App extends Component {
     constructor(props) {
@@ -13,8 +14,8 @@ class App extends Component {
         this.state = {
             initialCapital: 800000,
 			initialSpending: 32000,
-			initialMaxSpending: 40000,
-			initialMinSpending: 24000,
+			initialMaxSpending: 48000,
+			initialMinSpending: 28000,
             duration: 30, // years
             pctFees: 0.15, // pct as provided by the user
 			taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
@@ -56,8 +57,8 @@ class App extends Component {
                     median: sim.median,
                     successRate: sim.successful / sim.i,
 					minLength: sim.minLength,
-					minWithDrawalYears: sim.minWithDrawalYears,
-					maxWithDrawalYears: sim.maxWithDrawalYears,
+					medianMinMonths: sim.medianMinMonths,
+					medianMaxMonths: sim.medianMaxMonths,
                 },
                 results: sim.results,
                 simulations: sim.i,
@@ -170,17 +171,20 @@ class App extends Component {
 								? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
 								: (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
 								{this.state.withDrawalStrategy === "VWR"
-								? (<li>In months where portfolio returns minus costs and taxes are less than <span>{Format.money(this.state.initialMaxSpending)}</span> withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
+								? (<li>In months where portfolio returns after taxes and withdrawal are less than <span>{Format.money(this.state.initialMaxSpending)}</span> for the past 12 months, withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
+								{this.state.withDrawalStrategy === "VWR"
+								? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{math.round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
+								{this.state.withDrawalStrategy === "VWR"
+								? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{math.round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
                                 <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
                             </ul>
                         </div>
                         <div className="margin-m">
                             <Plot xMax={this.state.duration * 12} draw={!this.state.busy} datasets={this.state.results} id={this.state.id} />
                         </div>
-                       
                     </div>) : ''}
                 </div>
 

@@ -30,8 +30,10 @@ const dateLast = new Date(df.get("Date").iloc(df.length-1))
 class Simulation {
     results = []
 	endResults = []
-	percMinMonths = []
-	percMaxMonths = []
+	numMinMonths = []
+	medianMinMonths = 0
+	numMaxMonths = []
+	medianMaxMonths = 0
     successful = 0
     i = 0
 	max = 0
@@ -112,9 +114,11 @@ class Simulation {
 		r.endDate = this.currentPeriodEnd()
         this.results[this.i] = r;
 		this.endResults[this.i] = capital
-		this.percMinMonths[this.i] = 1 / month * numMonthsWithMinimumWithdrawal
-		this.percMaxMonths[this.i] = 1 / month * numMonthsWithMaximumWithdrawal
 		this.median = math.median(this.endResults)
+		this.numMinMonths[this.i] = numMonthsWithMinimumWithdrawal
+		this.medianMinMonths = math.median(this.numMinMonths)
+		this.numMaxMonths[this.i] = numMonthsWithMaximumWithdrawal
+		this.medianMaxMonths = math.median(this.numMaxMonths)
 
         if (capital > this.max) {
             this.max = capital
