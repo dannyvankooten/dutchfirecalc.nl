@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Plot from './Plot.js';
 import Taxes from './Taxes.js';
+import WithdrawalStrategies from './WithdrawalStrategies.js';
 import Simulation from './Simulation.js';
 import Format from './Format.js';
 import * as Track from './Track.js';
@@ -11,10 +12,13 @@ class App extends Component {
 
         this.state = {
             initialCapital: 800000,
-            initialSpending: 32000,
+			initialSpending: 32000,
+			initialMaxSpending: 40000,
+			initialMinSpending: 24000,
             duration: 30, // years
             pctFees: 0.15, // pct as provided by the user
-            taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object
+			taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
+			withDrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
             id: '',
             simulations: 0,
             results: [],
@@ -51,7 +55,9 @@ class App extends Component {
                     max: sim.max,
                     median: sim.median,
                     successRate: sim.successful / sim.i,
-                    minLength: sim.minLength,
+					minLength: sim.minLength,
+					minWithDrawalYears: sim.minWithDrawalYears,
+					maxWithDrawalYears: sim.maxWithDrawalYears,
                 },
                 results: sim.results,
                 simulations: sim.i,
@@ -95,13 +101,40 @@ class App extends Component {
                         <label>Initial capital</label>
                         <input type="number" value={this.state.initialCapital} disabled={this.state.busy} onChange={e => this.setState({initialCapital: parseInt(e.target.value)})} step="1000" min="0" />
                     </div>
-                    <div className="margin-m">
-                        <label>Initial yearly spending</label>
-                        <input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
-                        <div>
-                            <small >(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
-                        </div>
+					<div className="margin-m">
+                        <label>Withdrawal strategy</label>
+                        <select onChange={e => this.setState({withDrawalStrategy: e.target.value })} value={this.state.withdrawalStrategy} disabled={this.state.busy}>
+                            {Object.keys(WithdrawalStrategies).map(k => (<option key={k} value={k}>{k}</option>))}
+                        </select>
                     </div>
+					{this.state.withDrawalStrategy === "safe withdrawal rate"
+						? (
+							<div className="margin-m">
+								<label>Initial yearly spending</label>
+								<input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+								<div>
+									<small>(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+								</div>
+							</div>
+						) : (
+							<div>
+								<div className="margin-m">
+									<label>Initial maximum yearly spending</label>
+									<input type="number" value={this.state.initialMaxSpending} disabled={this.state.busy} onChange={e => this.setState({initialMaxSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+									<div>
+										<small>(equals a withdrawal rate of {(this.state.initialMaxSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+									</div>
+								</div>
+								<div className="margin-m">
+									<label>Initial minimum yearly spending</label>
+									<input type="number" value={this.state.initialMinSpending} disabled={this.state.busy} onChange={e => this.setState({initialMinSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+									<div>
+										<small>(equals a withdrawal rate of {(this.state.initialMinSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
+									</div>
+								</div>
+							</div>
+						)
+					}
                     <div className="margin-m">
                         <label>Duration <small>(years)</small></label>
                         <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="5" max="80" step="1" />
@@ -130,11 +163,19 @@ class App extends Component {
                         </div>
                         <div className="small">
                             <ul className="summary">
-                                <li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>
+								{this.state.withDrawalStrategy === "safe withdrawal rate"
+								? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
+								: (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
+								{this.state.withDrawalStrategy === "variable withdrawal rate (capital preservation)"
+								? (<li>In months where portfolio returns minus costs and taxes are less than <span>{Format.money(this.state.initialMaxSpending)}</span> withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
+								{this.state.withDrawalStrategy === "variable withdrawal rate (cut negatives)"
+								? (<li>In months when portfolio results are negative, withdrawal is set to a level equal to spending <span>{Format.money(this.state.initialMinSpending)}</span> per year.</li>) : ''}
                                 <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
                                 <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
+								{this.state.withDrawalStrategy.startsWith("variable withdrawal rate")
+									? (<li>{this.state.summary.minWithDrawalYears} and {this.state.summary.maxWithDrawalYears}</li>): ''}
                             </ul>
                         </div>
                         <div className="margin-m">

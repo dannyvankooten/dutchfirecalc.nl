@@ -4,6 +4,7 @@ import * as d3 from 'd3'
 import 'd3-dsv'
 import Taxes from './Taxes.js'
 import math from 'mathjs';
+import WithdrawalStrategies from './WithdrawalStrategies.js'
 
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 const data = d3.csvParse(rawData, r => ({
@@ -31,36 +32,44 @@ class Simulation {
     endResults = []
     successful = 0
     i = 0
-    max = 0
-    median = 0
+	max = 0
+	median = 0
+	threeMinWithDrawalYearsOrLess = 0
 
     constructor(config) {        
         this.months = config.duration * 12
-        this.initialCapital = config.initialCapital
-        this.initialWithdrawal = config.initialSpending / 12
+		this.initialCapital = config.initialCapital
         this.ocf = config.pctFees / 12 / 100;
         this.samples = yieldSeries.length - this.months - 2 // don't ask...
-        this.taxFunction = Taxes[config.taxStrategy]
-        this.minLength = this.months
+		this.taxFunction = Taxes[config.taxStrategy]
+		this.minLength = this.months
+		
+		this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy];	
+		this.initialMinWithdrawal = this.withdrawalStrategy.getInitialMinWithDrawal(config);
+		this.initialMaxWithdrawal = this.withdrawalStrategy.getInitialMaxWithDrawal(config);
     }
 
     run() {
-        let capital = this.initialCapital
-        let withdrawal = this.initialWithdrawal
+		let capital = this.initialCapital
+		let withDrawalMin = this.initialMinWithdrawal;
+		let withDrawalMax = this.initialMaxWithdrawal;
         let r = [capital]
         let gains = 0
         let taxes = 0
         let costs = 0 
         let untaxedGains = 0
-        let carryForward = 0
+		let carryForward = 0
+		let minWithDrawalYears = 0
+		let maxWithDrawalYears = 0
         let pos
         const calculateTaxes = typeof(this.taxFunction) === "function"
         
         let month = 1
         for( true; month <= this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
-            costs = this.ocf * capital;
-            withdrawal = inflationSeries.iloc(pos) * withdrawal;
+			costs = this.ocf * capital;
+			withDrawalMin = inflationSeries.iloc(pos) * withDrawalMin;
+			withDrawalMax = inflationSeries.iloc(pos) * withDrawalMax;
             gains = yieldSeries.iloc(pos) * capital;
             untaxedGains = untaxedGains + gains
           
@@ -75,8 +84,14 @@ class Simulation {
                 taxes = 0;
             }
 
-            // calculate capital after changes
-            capital = parseInt(capital + gains - costs - taxes - withdrawal)
+			// calculate capital after changes
+			let withDrawal = this.withdrawalStrategy.calculateWithdrawal(gains, costs, taxes, withDrawalMin, withDrawalMax);
+			if(withDrawal === withDrawalMin)
+				minWithDrawalYears++;
+			else if(withDrawal === withDrawalMax)
+				maxWithDrawalYears++;
+			
+			capital = capital + gains - costs - taxes - withDrawal;
 
             // did we reach EOL?
             if (capital < 0) {
@@ -91,10 +106,19 @@ class Simulation {
 
         // store results
         r.startDate = this.currentPeriodStart()
-        r.endDate = this.currentPeriodEnd()
+		r.endDate = this.currentPeriodEnd()
+		//r.minWithDrawalYears = minWithDrawalYears;
+		//r.maxWithDrawalYears = maxWithDrawalYears;
         this.results[this.i] = r;
         this.endResults[this.i] = capital
-        this.median = math.median(this.endResults)
+		this.median = math.median(this.endResults)
+		console.log('month', month)
+		console.log('minWithDrawalYears', minWithDrawalYears)
+		console.log('maxnWithDrawalYears', maxWithDrawalYears)
+		if(minWithDrawalYears <= 3)
+			this.threeMinWithDrawalYearsOrLess++;
+		
+		
         //console.log(this.endResults)
 
         if (capital > this.max) {
