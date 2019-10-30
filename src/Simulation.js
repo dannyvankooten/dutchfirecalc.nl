@@ -21,7 +21,7 @@ df = df.set('Stock yield', df.get('P').pct_change())
 df = df.set('Dividend yield', (df.get('D').divide(df.get('P'))).divide(12))
 df = df.set('Yield', df.get('Stock yield').add(df.get('Dividend yield')))
 df = df.set('Inflation', df.get('CPI').pct_change().add(1))
-window.df = df    
+window.df = df
 
 const inflationSeries = df.get("Inflation")
 const yieldSeries = df.get("Yield")
@@ -39,15 +39,16 @@ class Simulation {
     max = 0
     median = 0
 
-    constructor(config) {        
+    constructor(config) {
         this.months = config.duration * 12
         this.initialCapital = config.initialCapital
+        this.minimumRemaining = config.minimumRemaining
         this.ocf = config.pctFees / 12 / 100;
         this.samples = yieldSeries.length - this.months - 2 // don't ask...
         this.taxFunction = Taxes[config.taxStrategy]
         this.minLength = this.months
-        
-        this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy];    
+
+        this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy];
         this.initialMinWithdrawal = this.withdrawalStrategy.getInitialMinWithDrawal(config);
         this.initialMaxWithdrawal = this.withdrawalStrategy.getInitialMaxWithDrawal(config);
     }
@@ -59,14 +60,14 @@ class Simulation {
         let r = [capital]
         let gains = 0
         let taxes = 0
-        let costs = 0 
+        let costs = 0
         let untaxedGains = 0
         let carryForward = 0
         let numMonthsWithMinimumWithdrawal = 0
         let numMonthsWithMaximumWithdrawal = 0
         let pos
         const calculateTaxes = typeof(this.taxFunction) === "function"
-        
+
         let month = 1
         for( true; month <= this.months; month++) {
             pos = this.samples - this.i + month; // we start at the most recent period and then work our way down
@@ -75,12 +76,12 @@ class Simulation {
             withDrawalMax = inflationSeries.iloc(pos) * withDrawalMax;
             gains = yieldSeries.iloc(pos) * capital;
             untaxedGains = untaxedGains + gains
-          
+
             // calculate taxes every 12 months
             if (month % 12 === 0 && calculateTaxes) {
                 taxes = this.taxFunction(capital, untaxedGains, carryForward);
 
-                // calculate losses to carry forward to next tax cycle 
+                // calculate losses to carry forward to next tax cycle
                 carryForward = Math.min(0, carryForward + untaxedGains)
                 untaxedGains = 0;
             } else {
@@ -95,7 +96,7 @@ class Simulation {
             else if(withDrawal === withDrawalMax) {
                 numMonthsWithMaximumWithdrawal++;
             }
-            
+
             capital = capital + gains - costs - taxes - withDrawal;
 
             // did we reach EOL?
@@ -128,11 +129,11 @@ class Simulation {
             this.minLength = month;
         }
 
-        // recompute success rate
-        if (capital > 0) {
+        // compute success rate based on minimum capital remaining
+        if (capital > this.minimumRemaining) {
             this.successful++;
         }
-        
+
         // increment index & signal whether we're done or not
         this.i++;
         return this.done()
@@ -145,13 +146,13 @@ class Simulation {
     currentPeriodStart() {
         let d = new Date(dateLast)
         d.setMonth(dateLast.getMonth() - this.i - this.months)
-        return monthNames[d.getMonth()] + ' ' + d.getFullYear() 
+        return monthNames[d.getMonth()] + ' ' + d.getFullYear()
     }
 
     currentPeriodEnd() {
         let d = new Date(dateLast)
         d.setMonth(dateLast.getMonth() - this.i)
-        return monthNames[d.getMonth()] + ' ' + d.getFullYear() 
+        return monthNames[d.getMonth()] + ' ' + d.getFullYear()
     }
 
 }

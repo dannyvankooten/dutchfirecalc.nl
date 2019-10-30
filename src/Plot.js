@@ -21,7 +21,7 @@ class Plot extends Component {
         if (this.props.id === '' && this.lines.length > 0) {
             return;
         }
-        
+
         // should we redraw the entire chart?
         if (this.props.id !== prevProps.id) {
             this.reset();
@@ -58,7 +58,7 @@ class Plot extends Component {
 
         this.yGrid = d3.axisLeft().scale(this.y).tickSize(-this.width).tickFormat("")
         this.xGrid = d3.axisBottom().scale(this.xScale).ticks(this.xMax/12).tickSize(this.height).tickFormat("")
-        
+
         this.ctx.append("g").attr("class", "x axis").attr('transform', 'translate(0,' + (this.height) + ')')
         this.ctx.append("g").attr("class", "y axis")
 
@@ -66,7 +66,7 @@ class Plot extends Component {
         this.ctx.append("g").attr("class", "grid y")
 
         // 0 line
-        this.ctx.append("line").attr("class", 'zero-line')    
+        this.ctx.append("line").attr("class", 'zero-line')
         this.lines = []
         this.domainHash = ''
         this.lineIndex = 0
@@ -78,7 +78,7 @@ class Plot extends Component {
         this.init();
     }
 
-    draw() {        
+    draw() {
         // remove graph node from DOM
         const el = this.base.current.firstChild;
         this.base.current.removeChild(el)
@@ -88,9 +88,9 @@ class Plot extends Component {
             this.yMax = Math.max(this.yMax, d3.max(this.props.datasets[i]))
         }
 
-        const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`        
+        const domainHash = `${this.xMin},${this.xMax},${this.yMin},${this.yMax}`
         if (this.domainHash !== domainHash) {
-            //this.x = this.x 
+            //this.x = this.x
             this.y = this.y.domain([this.yMin, this.yMax])
             this.line = this.line.y((d, i) => this.y(d))
             this.yAxis = this.yAxis.scale(this.y)
@@ -100,7 +100,7 @@ class Plot extends Component {
                 this.yAxis.ticks(3)
                 this.xAxis.ticks(3)
             }
-           
+
             this.ctx.select('.y.axis').call(this.yAxis);
             this.ctx.select('.x.axis').call(this.xAxis)
             this.ctx.select(".zero-line")
@@ -109,8 +109,8 @@ class Plot extends Component {
 
             // add the X gridlines
             this.ctx.select('.x.grid').call(this.yGrid)
-            this.ctx.select('.y.grid').call(this.xGrid)   
-            
+            this.ctx.select('.y.grid').call(this.xGrid)
+
             // store configuration hash
             this.domainHash = domainHash;
 
@@ -118,7 +118,7 @@ class Plot extends Component {
             this.lineIndex = 0;
         }
 
-        while(this.lineIndex < this.props.datasets.length) {        
+        while(this.lineIndex < this.props.datasets.length) {
             if (this.lines[this.lineIndex]) {
                 // line was drawn before, update coords
                 this.lines[this.lineIndex].attr('d', this.line(this.props.datasets[this.lineIndex]))
@@ -132,7 +132,7 @@ class Plot extends Component {
                     .on('mouseover', this.tip.show)
                     .on('mouseout', this.tip.hide)
             }
-            
+
             this.lineIndex++;
         }
 

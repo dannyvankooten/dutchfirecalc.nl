@@ -9,7 +9,7 @@ export default {
         const schijf_1 = Math.min(71650, capital)
         const schijf_2 = Math.max(Math.min(989736, capital) - 71650, 0)
         const schijf_3 = Math.max(capital - 989736, 0)
-        return Math.max(0, Math.round((0.01935 * schijf_1 + 0.04451 * schijf_2 + 0.0560 * schijf_3) * 0.30))    
+        return Math.max(0, Math.round((0.01935 * schijf_1 + 0.04451 * schijf_2 + 0.0560 * schijf_3) * 0.30))
     },
 
     'vermogensbelasting 2018': (capital, gains) => {
@@ -21,9 +21,9 @@ export default {
         const schijf_1 = Math.min(70800, capital)
         const schijf_2 = Math.max(Math.min(978000, capital) - 70800, 0)
         const schijf_3 = Math.max(capital - 978000, 0)
-        return Math.max(0, Math.round((0.02017 * schijf_1 + 0.04326 * schijf_2 + 0.0538 * schijf_3) * 0.30))    
+        return Math.max(0, Math.round((0.02017 * schijf_1 + 0.04326 * schijf_2 + 0.0538 * schijf_3) * 0.30))
     },
-    
+
     'vermogensbelasting 2017': (capital, gains) => {
         capital = capital - 25000;
         if (capital < 0) {
@@ -44,7 +44,7 @@ export default {
         if (carryForward < 0) {
             gains += carryForward
         }
-        
+
         if (gains < 0) {
             return 0;
         }
@@ -62,7 +62,7 @@ export default {
         if (gains < 0) {
             return 0;
         }
-        
+
         const schijf_1 = Math.max(Math.min(200000, gains), 0)
         const schijf_2 = Math.max(gains - 200000, 0)
         return Math.max(Math.floor(0.175 * schijf_1 + 0.225 * schijf_2), 0)
@@ -76,7 +76,7 @@ export default {
         if (gains < 0) {
             return 0;
         }
-        
+
         const schijf_1 = Math.max(Math.min(200000, gains), 0)
         const schijf_2 = Math.max(gains - 200000, 0)
         return Math.max(Math.floor(0.16 * schijf_1 + 0.21 * schijf_2), 0)

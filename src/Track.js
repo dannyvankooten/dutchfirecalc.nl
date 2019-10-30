@@ -19,5 +19,3 @@ function pageview() {
 }
 
 export { event, pageview }
-
-    

@@ -17,13 +17,14 @@ class App extends Component {
             initialMaxSpending: 48000,
             initialMinSpending: 28000,
             duration: 30, // years
+            minimumRemaining: 0, // money
             pctFees: 0.15, // pct as provided by the user
             taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
             withDrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
             id: '',
             simulations: 0,
             results: [],
-            busy: false,            
+            busy: false,
         }
 
         this.runSimulation = this.runSimulation.bind(this)
@@ -37,7 +38,7 @@ class App extends Component {
         evt.preventDefault();
         Track.event({
             category: 'User',
-            action: 'Ran simulation' 
+            action: 'Ran simulation'
         })
 
         let sim = new Simulation(this.state)
@@ -49,7 +50,7 @@ class App extends Component {
             for(var i=0; i<batchSize && !stop; i++) {
                 stop = sim.run();
             }
-            
+
             // update state
             this.setState({
                 summary: {
@@ -81,13 +82,13 @@ class App extends Component {
                 successRate: null,
                 minLength: 0,
             },
-            results: [], 
+            results: [],
             simulations: sim.i,
             busy: true,
             id: runId,
             currentPeriodStart: sim.currentPeriodStart(),
             currentPeriodEnd: sim.currentPeriodEnd(),
-        }, tick)    
+        }, tick)
     }
 
     render() {
@@ -115,7 +116,7 @@ class App extends Component {
                         ? (
                             <div className="margin-m">
                                 <label>Initial yearly spending</label>
-                                <input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                <input type="number" value={this.state.initialSpending} disabled={this.state.busy} onChange={e => this.setState({initialSpending: parseInt(e.target.value)})} step="100" min="0" />
                                 <div>
                                     <small>(equals a withdrawal rate of {(this.state.initialSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
                                 </div>
@@ -124,14 +125,14 @@ class App extends Component {
                             <div>
                                 <div className="margin-m">
                                     <label>Initial maximum yearly spending</label>
-                                    <input type="number" value={this.state.initialMaxSpending} disabled={this.state.busy} onChange={e => this.setState({initialMaxSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                    <input type="number" value={this.state.initialMaxSpending} disabled={this.state.busy} onChange={e => this.setState({initialMaxSpending: parseInt(e.target.value)})} step="100" min="0" />
                                     <div>
                                         <small>(equals a withdrawal rate of {(this.state.initialMaxSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
                                     </div>
                                 </div>
                                 <div className="margin-m">
                                     <label>Initial minimum yearly spending</label>
-                                    <input type="number" value={this.state.initialMinSpending} disabled={this.state.busy} onChange={e => this.setState({initialMinSpending: parseInt(e.target.value)})} step="100" min="0" /> 
+                                    <input type="number" value={this.state.initialMinSpending} disabled={this.state.busy} onChange={e => this.setState({initialMinSpending: parseInt(e.target.value)})} step="100" min="0" />
                                     <div>
                                         <small>(equals a withdrawal rate of {(this.state.initialMinSpending / this.state.initialCapital* 100).toFixed(1)}%)</small>
                                     </div>
@@ -142,7 +143,14 @@ class App extends Component {
                     <div className="margin-m">
                         <label>Duration <small>(years)</small></label>
                         <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="5" max="80" step="1" />
-                        
+
+                    </div>
+                    <div className="margin-m">
+                        <label>Minimum capital remaining</label>
+                        <input type="number" value={this.state.minimumRemaining} disabled={this.state.busy} onChange={e => this.setState({minimumRemaining: parseInt(e.target.value)})} step="1000" min="0" />
+                        <div>
+                            <small>For instance to be left as inheritance</small>
+                        </div>
                     </div>
                     <div className="margin-m">
                         <label>Fees <small>(% per year)</small></label>
@@ -155,12 +163,12 @@ class App extends Component {
                         </select>
                     </div>
                     <div className="margin-m">
-                        <button type="submit" disabled={this.state.busy}>{this.state.busy ? 'Please wait' : 'Run simulation'}</button> 
+                        <button type="submit" disabled={this.state.busy}>{this.state.busy ? 'Please wait' : 'Run simulation'}</button>
                         {this.state.busy ? (<span className="l-margin-s small">&mdash; simulating {this.state.currentPeriodStart} - {this.state.currentPeriodEnd}</span>) : null}
                     </div>
                 </form>
                <div className="right">
-                {this.state.results.length > 0 ? 
+                {this.state.results.length > 0 ?
                     (<div>
                         <div className="margin-m">
                             <p>This strategy had a success rate of <strong>{Format.percentage(this.state.summary.successRate)}</strong> out of {this.state.simulations} tested {this.state.duration} year periods.</p>
@@ -172,7 +180,7 @@ class App extends Component {
                                 : (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
                                 {this.state.withDrawalStrategy === "VWR"
                                 ? (<li>In months where portfolio returns after taxes and withdrawal are less than <span>{Format.money(this.state.initialMaxSpending)}</span> for the past 12 months, withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
-                                <li>For our purposes, failure means the portfolio was depleted before the end of the <span>{this.state.duration}</span> year period.</li>
+                                <li>For our purposes, failure means the portfolio was depleted early, or the final portfolio balance was less than the set minimum capital left.</li>
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
                                 {this.state.withDrawalStrategy === "VWR"
