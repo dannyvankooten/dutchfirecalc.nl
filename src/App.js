@@ -25,7 +25,7 @@ class App extends Component {
             simulations: 0,
             results: [],
             busy: false,
-        }
+        };
 
         this.runSimulation = this.runSimulation.bind(this)
     }
@@ -44,10 +44,10 @@ class App extends Component {
         let sim = new Simulation(this.state)
         let stop = false;
         const runId = Math.random(0, 1).toString()
-        const batchSize = 12;
+        const batchSize = 60;
         const tick = () => {
             // perform another batch of runs
-            for(var i=0; i<batchSize && !stop; i++) {
+            for(let i=0; i<batchSize && !stop; i++) {
                 stop = sim.run();
             }
 
@@ -67,13 +67,13 @@ class App extends Component {
                 currentPeriodEnd: sim.currentPeriodEnd(),
                 busy: !stop,
                 id: !stop ? runId : '',
-            })
+            });
 
             // keep going
             if (!stop) {
                 window.setTimeout(tick, 1)
             }
-        }
+        };
 
         this.setState({
             summary: {
@@ -88,7 +88,7 @@ class App extends Component {
             id: runId,
             currentPeriodStart: sim.currentPeriodStart(),
             currentPeriodEnd: sim.currentPeriodEnd(),
-        }, tick)
+        }, tick);
     }
 
     render() {
@@ -143,13 +143,15 @@ class App extends Component {
                     <div className="margin-m">
                         <label>Duration <small>(years)</small></label>
                         <input type="number" value={this.state.duration} disabled={this.state.busy} onChange={e => this.setState({duration: parseInt(e.target.value)})}  min="5" max="80" step="1" />
-
+                        <div>
+                            <small>How many years should the money last?</small>
+                        </div>
                     </div>
                     <div className="margin-m">
                         <label>Minimum capital remaining</label>
                         <input type="number" value={this.state.minimumRemaining} disabled={this.state.busy} onChange={e => this.setState({minimumRemaining: parseInt(e.target.value)})} step="1000" min="0" />
                         <div>
-                            <small>For instance to be left as inheritance</small>
+                            <small>How much money should be left over at the end of the {this.state.duration} years.</small>
                         </div>
                     </div>
                     <div className="margin-m">
