@@ -43,7 +43,7 @@ class App extends Component {
 
         let sim = new Simulation(this.state)
         let stop = false;
-        const runId = Math.random(0, 1).toString()
+        const runId = Math.random().toString()
         const batchSize = 60;
         const tick = () => {
             // perform another batch of runs
@@ -75,6 +75,8 @@ class App extends Component {
             }
         };
 
+
+        console.log(sim.endResults);
         this.setState({
             summary: {
                 max: 0,

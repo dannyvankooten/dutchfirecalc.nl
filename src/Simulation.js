@@ -3,7 +3,6 @@ import rawData from "./data.csv.js"
 import * as d3 from 'd3'
 import 'd3-dsv'
 import Taxes from './Taxes.js'
-import math from 'mathjs';
 import WithdrawalStrategies from './WithdrawalStrategies.js'
 
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
@@ -14,14 +13,36 @@ const data = d3.csvParse(rawData, r => ({
     E: parseFloat(r.E),
     CPI: parseFloat(r.CPI),
     CAPE: r.CAPE,
-}))
+}));
 
 let df = new DataFrame(data)
 df = df.set('Stock yield', df.get('P').pct_change())
 df = df.set('Dividend yield', (df.get('D').divide(df.get('P'))).divide(12))
 df = df.set('Yield', df.get('Stock yield').add(df.get('Dividend yield')))
 df = df.set('Inflation', df.get('CPI').pct_change().add(1))
-window.df = df
+window.df = df;
+
+// insert numerical item into array at sorted position (ascending)
+function insertSorted(arr, item) {
+    let i = 0;
+    for(i; i < arr.length; i++) {
+        if (item < arr[i]) {
+           break;
+        }
+    }
+
+    arr.splice(i, 0, item);
+}
+
+// calculate the median value **for an array that is already sorted**
+function median(arr) {
+    let half = Math.floor(arr.length/2);
+
+    if (arr.length % 2)
+        return arr[half];
+    else
+        return (arr[half-1] + arr[half]) / 2.0;
+}
 
 const inflationSeries = df.get("Inflation")
 const yieldSeries = df.get("Yield")
@@ -111,15 +132,15 @@ class Simulation {
         }
 
         // store results
-        r.startDate = this.currentPeriodStart()
-        r.endDate = this.currentPeriodEnd()
+        r.startDate = this.currentPeriodStart();
+        r.endDate = this.currentPeriodEnd();
         this.results[this.i] = r;
-        this.endResults[this.i] = capital
-        this.median = math.median(this.endResults)
-        this.numMinMonths[this.i] = numMonthsWithMinimumWithdrawal
-        this.medianMinMonths = math.median(this.numMinMonths)
-        this.numMaxMonths[this.i] = numMonthsWithMaximumWithdrawal
-        this.medianMaxMonths = math.median(this.numMaxMonths)
+        insertSorted(this.endResults, capital);
+        this.median = median(this.endResults);
+        insertSorted(this.numMinMonths, numMonthsWithMinimumWithdrawal);
+        this.medianMinMonths = median(this.numMinMonths);
+        insertSorted(this.numMaxMonths, numMonthsWithMaximumWithdrawal);
+        this.medianMaxMonths = median(this.numMaxMonths);
 
         if (capital > this.max) {
             this.max = capital
