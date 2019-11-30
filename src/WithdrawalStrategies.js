@@ -1,6 +1,7 @@
 export default {
 
     'SWR': {
+        id: 'SWR',
         description: "Fixed inflation-adjusted withdrawal every month.",
 
         getInitialMinWithDrawal : (config) => { return config.initialSpending / 12 },
@@ -11,6 +12,7 @@ export default {
     },
 
     'VWR': { // TODO: Better naming
+        'id': 'VWR',
         description: "Variable withdrawal rate. Between minimum and maximum if result of trailing 12 months is less than maximum.", // TODO: Better explanation.
 
         getInitialMinWithDrawal : (config) => { return config.initialMinSpending / 12 },

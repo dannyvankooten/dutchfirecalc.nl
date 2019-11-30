@@ -51,7 +51,6 @@ class App extends Component {
                 stop = sim.run();
             }
 
-            // update state
             this.setState({
                 summary: {
                     max: sim.max,
