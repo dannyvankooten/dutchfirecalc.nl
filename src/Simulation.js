@@ -156,7 +156,7 @@ class Simulation {
         }
 
         // compute success rate based on minimum capital remaining
-        if (capital >= this.minimumRemaining) {
+        if (capital > this.minimumRemaining) {
             this.successful++;
         }
 
