@@ -1,4 +1,15 @@
 export default {
+  'vermogensbelasting 2020': (capital, gains) => {
+    capital = capital - 30846
+    if (capital < 0) {
+      return 0
+    }
+
+    const schijf_1 = Math.min(72798, capital)
+    const schijf_2 = Math.max(Math.min(1005573, capital) - 72798, 0)
+    const schijf_3 = Math.max(capital - 1005573, 0)
+    return Math.max(0, Math.round((0.01799 * schijf_1 + 0.04223 * schijf_2 + 0.0533 * schijf_3) * 0.30))
+  },
 
   'vermogensbelasting 2019': (capital, gains) => {
     capital = capital - 30360
