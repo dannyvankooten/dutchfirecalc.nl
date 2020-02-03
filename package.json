@@ -1,13 +1,12 @@
 {
-  "name": "my-app",
+  "name": "dutchfirecalc.nl",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "d3": "^5.14.2",
+    "d3": "^5.15.0",
     "d3-dsv": "^1.2.0",
     "d3-shape": "^1.3.7",
     "d3-tip": "^0.9.1",
-    "mathjs": "^5.10.3",
     "pandas-js": "^0.2.4",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -27,12 +26,19 @@
     "not dead"
   ],
   "devDependencies": {
-    "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-standard": "^4.0.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "standard"
+    ],
+    "rules": {
+      "camelcase": "off",
+      "no-useless-catch": "off"
+    }
   }
 }
