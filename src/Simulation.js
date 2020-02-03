@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { DataFrame } from 'pandas-js'
 import rawData from "./data.csv.js"

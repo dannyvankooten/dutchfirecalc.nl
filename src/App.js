@@ -5,7 +5,11 @@ import WithdrawalStrategies from './WithdrawalStrategies.js';
 import Simulation from './Simulation.js';
 import Format from './Format.js';
 import * as Track from './Track.js';
-import math from 'mathjs';
+
+function round(num, digits) {
+    let exp = Math.pow(10, digits+1)
+    return (Math.round(num * exp) / exp).toFixed(digits)
+}
 
 class App extends Component {
     constructor(props) {
@@ -74,8 +78,6 @@ class App extends Component {
             }
         };
 
-
-        console.log(sim.endResults);
         this.setState({
             summary: {
                 max: 0,
@@ -187,9 +189,9 @@ class App extends Component {
                                 <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                                 <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
                                 {this.state.withDrawalStrategy === "VWR"
-                                ? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{math.round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
+                                ? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
                                 {this.state.withDrawalStrategy === "VWR"
-                                ? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{math.round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
+                                ? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
                                 <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength/12)}</span> years.</li>
                             </ul>
                         </div>
