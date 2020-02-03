@@ -24,7 +24,7 @@ class App extends Component {
       minimumRemaining: 0, // money
       pctFees: 0.15, // pct as provided by the user
       taxStrategy: Object.keys(Taxes)[0], // must exist on Taxes object,
-      withDrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
+      withdrawalStrategy: Object.keys(WithdrawalStrategies)[0], // must exist on WithdrawalStrategies object,
       id: '',
       simulations: 0,
       results: [],
@@ -45,6 +45,7 @@ class App extends Component {
       action: 'Ran simulation'
     })
 
+    const start = performance.now()
     const sim = new Simulation(this.state)
     let stop = false
     const runId = Math.random().toString()
@@ -75,6 +76,8 @@ class App extends Component {
       // keep going
       if (!stop) {
         window.setTimeout(tick, 6)
+      } else {
+        console.log('Finished simulation in ', performance.now() - start, 'ms')
       }
     }
 
@@ -108,14 +111,14 @@ class App extends Component {
           </div>
           <div className="margin-m">
             <label>Withdrawal strategy</label>
-            <select onChange={e => this.setState({ withDrawalStrategy: e.target.value })} value={this.state.withdrawalStrategy} disabled={this.state.busy}>
+            <select onChange={e => this.setState({ withdrawalStrategy: e.target.value })} value={this.state.withdrawalStrategy} disabled={this.state.busy}>
               {Object.keys(WithdrawalStrategies).map(k => (<option key={k} value={k}>{k}</option>))}
             </select>
             <div>
-              <small>{WithdrawalStrategies[this.state.withDrawalStrategy].description}</small>
+              <small>{WithdrawalStrategies[this.state.withdrawalStrategy].description}</small>
             </div>
           </div>
-          {this.state.withDrawalStrategy === 'SWR'
+          {this.state.withdrawalStrategy === 'SWR'
             ? (
               <div className="margin-m">
                 <label>Initial yearly spending</label>
@@ -180,17 +183,17 @@ class App extends Component {
               </div>
               <div className="small">
                 <ul className="summary">
-                  {this.state.withDrawalStrategy === 'SWR'
+                  {this.state.withdrawalStrategy === 'SWR'
                     ? (<li>The initial spending amount of <span>{Format.money(this.state.initialSpending)}</span> is adjusted for inflation each year.</li>)
                     : (<li>The initial spending amounts of <span>{Format.money(this.state.initialMinSpending)}</span> and <span>{Format.money(this.state.initialMaxSpending)}</span> are adjusted for inflation each year.</li>)}
-                  {this.state.withDrawalStrategy === 'VWR'
+                  {this.state.withdrawalStrategy === 'VWR'
                     ? (<li>In months where portfolio returns after taxes and withdrawal are less than <span>{Format.money(this.state.initialMaxSpending)}</span> for the past 12 months, withdrawal is set to an optimal level between <span>{Format.money(this.state.initialMaxSpending)}</span> and <span>{Format.money(this.state.initialMinSpending)}</span>.</li>) : ''}
                   <li>For our purposes, failure means the portfolio was depleted early, or the final portfolio balance was less than the set minimum capital left.</li>
                   <li>The highest portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.max)}</span> (not inflation adjusted).</li>
                   <li>The median portfolio balance at the end of your retirement was <span>{Format.money(this.state.summary.median)}</span> (not inflation adjusted).</li>
-                  {this.state.withDrawalStrategy === 'VWR'
+                  {this.state.withdrawalStrategy === 'VWR'
                     ? (<li>The median number of months spent withdrawing only the bare minimum was <span>{this.state.summary.medianMinMonths}</span> (<span>{round(this.state.summary.medianMinMonths / 12, 2)}</span> years)</li>) : ''}
-                  {this.state.withDrawalStrategy === 'VWR'
+                  {this.state.withdrawalStrategy === 'VWR'
                     ? (<li>The median number of months spent withdrawing the absolute maximum was <span>{this.state.summary.medianMaxMonths}</span> (<span>{round(this.state.summary.medianMaxMonths / 12, 2)}</span> years)</li>) : ''}
                   <li>In the worst period, this portfolio only lasted <span>{Math.round(this.state.summary.minLength / 12)}</span> years.</li>
                 </ul>

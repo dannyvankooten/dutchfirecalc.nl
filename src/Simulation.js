@@ -66,15 +66,15 @@ class Simulation {
       this.taxFunction = Taxes[config.taxStrategy]
       this.minLength = this.months
 
-      this.withdrawalStrategy = WithdrawalStrategies[config.withDrawalStrategy]
+      this.withdrawalStrategy = WithdrawalStrategies[config.withdrawalStrategy]
       this.initialMinWithdrawal = this.withdrawalStrategy.getInitialMinWithDrawal(config)
       this.initialMaxWithdrawal = this.withdrawalStrategy.getInitialMaxWithDrawal(config)
     }
 
     run () {
       let capital = this.initialCapital
-      let withDrawalMin = this.initialMinWithdrawal
-      let withDrawalMax = this.initialMaxWithdrawal
+      let withdrawalMin = this.initialMinWithdrawal
+      let withdrawalMax = this.initialMaxWithdrawal
       const r = [capital]
       let gains = 0
       let taxes = 0
@@ -90,13 +90,13 @@ class Simulation {
       for (true; month <= this.months; month++) {
         pos = this.samples - this.i + month // we start at the most recent period and then work our way down
         costs = this.ocf * capital
-        withDrawalMin = inflationSeries.iloc(pos) * withDrawalMin
-        withDrawalMax = inflationSeries.iloc(pos) * withDrawalMax
+        withdrawalMin = inflationSeries.iloc(pos) * withdrawalMin
+        withdrawalMax = inflationSeries.iloc(pos) * withdrawalMax
         gains = yieldSeries.iloc(pos) * capital
         untaxedGains = untaxedGains + gains
 
         // calculate taxes every 12 months
-        if (month % 12 === 0 && calculateTaxes) {
+        if (calculateTaxes && month % 12 === 0) {
           taxes = this.taxFunction(capital, untaxedGains, carryForward)
 
           // calculate losses to carry forward to next tax cycle
@@ -107,14 +107,14 @@ class Simulation {
         }
 
         // calculate capital after changes
-        const withDrawal = this.withdrawalStrategy.calculateWithdrawal(r, gains, costs, taxes, withDrawalMin, withDrawalMax)
-        if (withDrawal === withDrawalMin) {
+        const withdrawal = this.withdrawalStrategy.calculateWithdrawal(r, gains, costs, taxes, withdrawalMin, withdrawalMax)
+        if (withdrawal === withdrawalMin) {
           numMonthsWithMinimumWithdrawal++
-        } else if (withDrawal === withDrawalMax) {
+        } else if (withdrawal === withdrawalMax) {
           numMonthsWithMaximumWithdrawal++
         }
 
-        capital = capital + gains - costs - taxes - withDrawal
+        capital = capital + gains - costs - taxes - withdrawal
 
         // did we reach EOL?
         if (capital < 0) {
@@ -141,10 +141,6 @@ class Simulation {
         this.medianMaxMonths = median(this.numMaxMonths)
       }
 
-      if (capital > this.max) {
-        this.max = capital
-      }
-
       if (month < this.minLength) {
         this.minLength = month
       }
@@ -152,14 +148,17 @@ class Simulation {
       // compute success rate based on minimum capital remaining
       if (capital > this.minimumRemaining) {
         this.successful++
+
+        // was this the best run yet?
+        if (capital > this.max) {
+          this.max = capital
+        }
       }
 
-      // increment index & signal whether we're done or not
+      // increment index
       this.i++
-      return this.done()
-    }
 
-    done () {
+      // return true if done
       return this.i >= this.samples
     }
 
