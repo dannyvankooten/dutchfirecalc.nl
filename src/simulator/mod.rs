@@ -6,8 +6,8 @@ struct CsvRow {
     date: String,
     price : f32,
     dividend: f32,
-    //earnings: f32,
     cpi: f32,
+    //earnings: f32,
     //cape: f32
 }
 
@@ -21,10 +21,11 @@ struct Month {
 // TODO: Add support for taxes
 // TODO: Add support for variable withdrawals
 pub struct Vars {
-    initial_capital: u64,
-    minimum_remaining: u64,
-    yearly_fees: f32,
-    years: u8,
+    pub initial_capital: f32,
+    pub minimum_remaining: f32,
+    pub initial_withdrawal: f32,
+    pub yearly_fees: f32,
+    pub years: usize,
 }
 
 pub struct Simulator{
@@ -33,8 +34,41 @@ pub struct Simulator{
 
 
 impl Simulator {
-    pub fn run(&self) {
-        println!("{:?}", self.data[self.data.len()-1]);
+    pub fn run(&self, vars : Vars) -> f32 {
+        let months = vars.years * 12;
+        let samples = self.data.len() - months;
+        let fees_pct = vars.yearly_fees / 12.00 / 100.00;
+        let mut succeeded = 0;
+        let mut gains : f32;
+        let mut fees : f32;
+        for p in 0..samples {
+            let mut capital = vars.initial_capital;
+            let mut withdrawal = vars.initial_withdrawal / 12.00;
+            let month_start_index = p;
+            let month_end_index = p + (vars.years * 12);
+            for month in month_start_index..month_end_index {
+                withdrawal = withdrawal + withdrawal * self.data[month].inflation;
+                gains = capital * self.data[month].roi;
+                fees = fees_pct * capital;
+
+                capital = capital + gains - fees - withdrawal;
+
+                 
+
+                if capital < 0.0 {
+                    break;
+                }
+            }
+
+            if capital > vars.minimum_remaining {
+                succeeded = succeeded + 1;
+            }
+        }
+
+        let success_ratio = succeeded as f32 / samples as f32 * 100.00;
+
+        // TODO: What to return here? What do we want to visualise?
+        return success_ratio;
     }
 }
 
