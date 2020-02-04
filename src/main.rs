@@ -10,5 +10,6 @@ fn main() {
         years: 30,
     });
 
+
     println!("Success ratio (30 years, 4% withdrawal rate, 0.15% fees): {}", success_ratio);
 }

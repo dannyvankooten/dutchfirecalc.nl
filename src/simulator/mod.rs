@@ -22,16 +22,32 @@ struct Month {
 // TODO: Add support for variable withdrawals
 pub struct Vars {
     pub initial_capital: f32,
-    pub minimum_remaining: f32,
     pub initial_withdrawal: f32,
+    pub minimum_remaining: f32,
     pub yearly_fees: f32,
     pub years: usize,
 }
 
+// TODO: Optionally we can use builder pattern like this for specifying simulation variables
+// impl Vars {
+//     pub fn new() -> Self {
+//         Vars {
+//             initial_capital: 1000000.00,
+//             initial_withdrawal: 0.00,
+//             minimum_remaining: 0.00,
+//             yearly_fees: 0.00,
+//             years: 30
+//         }
+//     }
+//     pub fn capital(&mut self, v : f32) -> &Self {
+//         self.initial_capital = v;
+//         self
+//     }
+// }
+
 pub struct Simulator{
     data: Vec<Month>
 }
-
 
 impl Simulator {
     pub fn run(&self, vars : Vars) -> f32 {
