@@ -1,5 +1,26 @@
 {% extends "base" %}
 
+{% macro table(rows) %}
+<table>
+<thead>
+    <tr>
+        <th>Period</th>
+        <th>Capital</th>
+        <th>Duration</th>
+    </tr>
+</thead>
+<tbody>
+{% for r in rows %}
+    <tr>
+        <td>{{ r.date_start }} &mdash; {{ r.date_end }}</td>
+        <td>€{{ r.end_capital }}</td>
+        <td>{{ r.duration / 12 | round }} years</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endmacro table %}
+
 {% block content %}
 <table>
     <tr>
@@ -28,7 +49,20 @@
     </tr>
 </table>
 
-<p>The simulated portfolio had a success rate of <strong>{{ result | round(method="floor", precision=2) }}%</strong></p>
+<p>
+The simulated portfolio had a success rate of <strong>{{ success_ratio | round(method="floor", precision=2) }}%</strong> out of {{ samples }} tested periods. 
+</p>
+<p>
+The median end capital was €<strong>{{ median | round(method="floor", precision=2) }}</strong> (not adjusted for inflation).
+</p>
+
+<p>In the worst period, this portfolio lasted {{ tail.0.duration / 12 | round }} years.</p>
+
+<h3>5 worst periods</h3>
+{{ self::table(rows=tail) }}
+
+<h3>5 best periods</h3>
+{{ self::table(rows=head) }}
 
 <p>
     <small><a href="/">Go back</a></small>

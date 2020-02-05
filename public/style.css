@@ -14,8 +14,8 @@ ul { padding-left:1em; }
 blockquote { background:#F0FBFF; padding:0 1em; border:1px solid #D7EDF5; }
 hr { border:1px dotted; margin:2em 0; }
 pre code { background:#fffaf0; color:#111; border:1px solid #fff1d6; display:block; overflow-x:auto; padding:4px; }
-table { border-collapse:collapse; }
-th,td { text-align:left; padding:2px 4px; }
+table { border-collapse:collapse; table-layout: fixed; width: 100%; }
+th,td { text-align:left; padding:4px 2em 4px 0; border-bottom: 1px solid #EEE;}
 footer { border-top:1px dotted #AAA; margin:2em 0; padding-top:2em; font-size: 16px; } 
 footer svg { vertical-align:middle; }
 small,small a { color:#666; }
@@ -51,5 +51,8 @@ button {
 .c { max-width:680px; margin-left:auto; margin-right:auto; padding-left:0.7em; padding-right:0.7em; }
 
 @media(max-width:400px) { 
-	nav h1, nav h3 { display: block; margin-bottom:0.5em;  }
- }
+    nav h1, nav h3 { display: block; margin-bottom:0.5em;  }
+}
+@media(max-width: 560px) {
+    table { font-size: 16px; }
+}

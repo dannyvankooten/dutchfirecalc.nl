@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![feature(slice_partition_at_index)]
 
 #[macro_use] extern crate rocket;
 

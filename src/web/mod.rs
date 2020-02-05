@@ -13,11 +13,11 @@ use crate::simulator;
 // TODO: This can probably be DRY'er?
 #[derive(FromForm, Debug, Clone, Serialize)]
 struct Params {
-    capital: f32,
-    withdrawal_min: f32,
-    withdrawal_max: f32,
+    capital: u64,
+    withdrawal_min: u64,
+    withdrawal_max: u64,
     fees: f32,
-    minimum_remaining: f32,
+    minimum_remaining: u64,
     tax_strategy: String,
     duration: usize,
 }
@@ -47,10 +47,14 @@ fn sim(params : Form<Params>) -> Template {
     let params = params.into_inner();
     let mut context = Context::new();
     let sim = simulator::new();
-    let result = sim.run(params.clone().into());
+    let results = sim.run(params.clone().into());
 
     context.insert("params", &params);
-    context.insert("result", &result);
+    context.insert("success_ratio", &results.success_ratio);
+    context.insert("median", &results.median());
+    context.insert("tail", &results.tail(5));
+    context.insert("head", &results.head(5));
+    context.insert("samples", &results.periods.len());
     Template::render("sim", &context)
 }
 
