@@ -1,0 +1,36 @@
+{% extends "base" %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Initial capital</th>
+        <td>€{{ params.capital }}</td>
+    </tr>
+    <tr>
+        <th>Initial withdrawal</th>
+        <td>€{{ params.withdrawal }}</td>
+    </tr>
+    <tr>
+        <th>Duration</th>
+        <td>{{ params.duration }} years</td>
+    </tr>
+    <tr>
+        <th>Yearly fees</th>
+        <td>{{ params.fees | round(method="floor", precision=2) }}%</td>
+    </tr>
+    <tr>
+        <th>Minimum remaining capital</th>
+        <td>€{{ params.minimum_remaining | round(method="floor", precision=2) }}</td>
+    </tr>
+    <tr>
+         <th>Tax strategy</th>
+        <td>{{ params.tax_strategy }}</td>
+    </tr>
+</table>
+
+<p>The simulated portfolio had a success rate of <strong>{{ result | round(method="floor", precision=2) }}%</strong></p>
+
+<p>
+    <small><a href="/">Go back</a></small>
+</p>
+{% endblock content %}

@@ -1,0 +1,55 @@
+body { background:#fff; color:#111; font:18px Helvetica,Arial,sans-serif; margin:0; overflow-y:scroll; }
+a { color:rgb(6, 143, 255) } 
+a:hover,a:focus { color:#111; } 
+nav { display:block; background:rgb(6, 143, 255); margin-bottom:2em; padding:0.5em 0; }
+nav > div { margin: 0 auto; }
+nav h1,nav h3,nav a { font-size: 16px; display:inline-block; margin:0 0.5em 0 0; color: white; text-decoration: none; }
+nav a:hover,nav a:focus { color:white; text-decoration: underline }
+img { max-width:100%; height:auto; }
+main { line-height:1.6; }
+h1 { margin:0; }
+h2,h3,h4,h5 { margin:2em 0 0; }
+p,blockquote,ul,table,pre,hr { margin:1em 0; }
+ul { padding-left:1em; }
+blockquote { background:#F0FBFF; padding:0 1em; border:1px solid #D7EDF5; }
+hr { border:1px dotted; margin:2em 0; }
+pre code { background:#fffaf0; color:#111; border:1px solid #fff1d6; display:block; overflow-x:auto; padding:4px; }
+table { border-collapse:collapse; }
+th,td { text-align:left; padding:2px 4px; }
+footer { border-top:1px dotted #AAA; margin:2em 0; padding-top:2em; font-size: 16px; } 
+footer svg { vertical-align:middle; }
+small,small a { color:#666; }
+form { font-size: 16px; }
+form > div { margin: 1em 0; }
+label { display: block; }
+input, select {
+    width: 240px;
+    padding: 6px;
+    color: #333;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    box-sizing: border-box;
+}
+select {
+    -moz-appearance: none;
+    appearance: none;
+    background-image: linear-gradient(45deg,transparent 50%,#ddd 0),linear-gradient(135deg,#ddd 50%,
+    transparent 0);
+    background-position: calc(100% - 23px) 50%,calc(100% - 15px) 50%;
+    background-size: 8px 8px,8px 8px;
+    background-repeat: no-repeat;
+}
+button {
+    padding: 12px 16px;
+    display: inline-block;
+    background: rgb(6, 143, 255);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    outline: none;
+}
+.c { max-width:680px; margin-left:auto; margin-right:auto; padding-left:0.7em; padding-right:0.7em; }
+
+@media(max-width:400px) { 
+	nav h1, nav h3 { display: block; margin-bottom:0.5em;  }
+ }

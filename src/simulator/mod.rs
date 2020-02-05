@@ -67,9 +67,7 @@ impl Simulator {
                 gains = capital * self.data[month].roi;
                 fees = fees_pct * capital;
 
-                capital = capital + gains - fees - withdrawal;
-
-                 
+                capital = capital + gains - fees - withdrawal;              
 
                 if capital < 0.0 {
                     break;

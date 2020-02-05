@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>Dutch FIRE Calculator - how long would your portfolio last?</title>
+  </head>
+  <body>
+    <nav>
+        <div class="c">
+            <h3><a href="/">Dutch FIRE Calculator</a></h3>
+        </div>
+    </nav>
+    <main class="c">
+        {% block content %}{% endblock %}
+    </main>
+    <div class="c">
+        <footer>
+            <small>
+                <a href="https://github.com/dannyvankooten/dutchfirecalc.nl">Source code on GitHub</a>
+            </small>
+        </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+{% extends "base" %}
+
+{% block content %}
+<p>This tool simulates portfolio performance using a yearly spending amount (adjusted for inflation), investment fees and real tax calculation.</p>
+<p>The simulation uses historical returns for the S&P 500 with dividends re-invested, going back to 1871.</p>
+
+<form method="GET" action="/sim">
+    <div class="margin-m">
+        <label>Initial capital</label>
+        <input name="capital" type="number" step="1000" min="0" value="1000000">
+    </div>
+    <div class="margin-m">
+        <label>Withdrawal strategy</label>
+        <select name="withdrawal_strategy">
+            <option value="SWR">Safe Withdrawal Rate</option>
+            <option value="VWR">Variable Withdrawal Rate</option>
+        </select>
+        <div><small>Fixed inflation-adjusted withdrawal every month.</small></div>
+    </div>
+    <div class="margin-m">
+        <label>Initial yearly spending</label>
+        <input name="withdrawal" type="number" step="100" min="0" value="40000">
+        <div><small>(equals a withdrawal rate of 4.0%)</small></div>
+    </div>
+    <div class="margin-m">
+        <label>Duration <small>(years)</small></label>
+        <input name="duration" type="number" min="5" max="80" step="1" value="30">
+        <div><small>How many years should the money last?</small></div>
+    </div>
+    <div class="margin-m">
+        <label>Minimum capital remaining</label>
+        <input name="minimum_remaining" type="number" step="1000" min="0" value="0">
+        <div><small>How much money should be left over at the end of the 30 years.</small></div>
+    </div>
+    <div class="margin-m">
+        <label>Fees <small>(% per year)</small></label>
+        <input name="fees" type="number" step="0.01" min="0.00" max="20.00" value="0.15">
+    </div>
+    <div class="margin-m">
+        <label>Tax strategy</label>
+        <select name="tax_strategy">
+            <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
+            <option value="vermogensbelasting 2019">vermogensbelasting 2019</option>
+            <option value="vennootschapsbelasting 2020">vennootschapsbelasting 2020</option>
+            <option value="vennootschapsbelasting 2019">vennootschapsbelasting 2019</option>
+            <option value="tax free">tax free</option>
+        </select>
+    </div>
+    <div class="margin-m">
+        <button type="submit">Run simulation</button>
+    </div>
+</form>
+{% endblock content %}
