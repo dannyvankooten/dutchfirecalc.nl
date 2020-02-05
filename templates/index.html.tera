@@ -31,9 +31,6 @@
         <label>Taxes</label>
         <select name="tax_strategy">
             <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
-            <option value="vermogensbelasting 2019">vermogensbelasting 2019</option>
-            <option value="vennootschapsbelasting 2020">vennootschapsbelasting 2020</option>
-            <option value="vennootschapsbelasting 2019">vennootschapsbelasting 2019</option>
             <option value="tax free">tax free</option>
         </select>
     </div>

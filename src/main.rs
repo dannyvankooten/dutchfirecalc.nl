@@ -5,8 +5,6 @@
 mod simulator;
 mod web;
 
-use simulator::Vars;
-
 fn main() {
     // let sim = simulator::new();
     // let success_ratio = sim.run(Vars{

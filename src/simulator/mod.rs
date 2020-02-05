@@ -1,6 +1,8 @@
 
 use std::fs;
 
+mod taxes;
+
 #[derive(Debug)]
 struct CsvRow {
     date: String,
@@ -27,6 +29,7 @@ pub struct Vars {
     pub minimum_remaining: f32,
     pub yearly_fees: f32,
     pub years: usize,
+    pub tax_strategy: Option<String>,
 }
 
 // TODO: Optionally we can use builder pattern like this for specifying simulation variables
@@ -58,16 +61,20 @@ impl Simulator {
         let mut succeeded = 0;
         let mut gains : f32;
         let mut fees : f32;
+        let tax_fn = match vars.tax_strategy.unwrap_or(String::from("tax free")).as_str() {
+            "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
+            "tax free" | "" | _=> taxes::tax_free,
+        };
 
-        // run over each avilable sample
+        // run over each available sample
         for p in 0..samples {
             let mut capital = vars.initial_capital;
-            // TODO: Use minimum withdrawal whenever portfolio dips below its initial value
             let mut withdrawal_min = vars.initial_withdrawal_min / 12.00;
             let mut withdrawal_max = vars.initial_withdrawal_max / 12.00;
             let mut withdrawal : f32;
+            let mut taxes : f32;
             let month_start_index = p;
-            let month_end_index = p + (vars.years * 12);
+            let month_end_index = p + months;
 
             // run over each month 
             for month in month_start_index..month_end_index {
@@ -83,9 +90,12 @@ impl Simulator {
                 
                 // determine amount to withdraw
                 withdrawal = if capital < vars.initial_capital { withdrawal_min } else { withdrawal_max };
+
+                // calculate taxes
+                taxes = if month % 12 == 0 { tax_fn(capital, gains) } else { 0.00 };
                 
                 // calculate new capital value
-                capital = capital + gains - fees - withdrawal;              
+                capital = capital + gains - fees - taxes - withdrawal;              
 
                 if capital < 0.0 {
                     break;
