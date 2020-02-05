@@ -29,7 +29,7 @@ pub struct Vars {
     pub minimum_remaining: f32,
     pub yearly_fees: f32,
     pub years: usize,
-    pub tax_strategy: Option<String>,
+    pub tax_strategy: String,
 }
 
 // TODO: Optionally we can use builder pattern like this for specifying simulation variables
@@ -58,13 +58,11 @@ impl Simulator {
         let months = vars.years * 12;
         let samples = self.data.len() - months;
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
-        let mut succeeded = 0;
-        let mut gains : f32;
-        let mut fees : f32;
-        let tax_fn = match vars.tax_strategy.unwrap_or(String::from("tax free")).as_str() {
+        let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
             "tax free" | "" | _=> taxes::tax_free,
         };
+        let mut results : Vec<f32> = vec![0.00; samples];
 
         // run over each available sample
         for p in 0..samples {
@@ -73,6 +71,8 @@ impl Simulator {
             let mut withdrawal_max = vars.initial_withdrawal_max / 12.00;
             let mut withdrawal : f32;
             let mut taxes : f32;
+            let mut gains : f32;
+            let mut fees : f32;
             let month_start_index = p;
             let month_end_index = p + months;
 
@@ -102,12 +102,12 @@ impl Simulator {
                 }
             }
 
-            if capital > vars.minimum_remaining {
-                succeeded = succeeded + 1;
-            }
+            // store end capital in results array
+            results[p] = capital;
         }
 
-        let success_ratio = succeeded as f32 / samples as f32 * 100.00;
+        //let (_, median, _) = results.partition_at_index(results.len() / 2);
+        let success_ratio = results.iter().filter(|v| *v > &vars.minimum_remaining).count() as f32 / samples as f32 * 100.00;
 
         // TODO: What to return here? What do we want to visualise?
         return success_ratio;

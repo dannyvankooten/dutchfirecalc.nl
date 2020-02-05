@@ -31,7 +31,7 @@ impl Into<simulator::Vars> for Params {
            yearly_fees: self.fees,
            minimum_remaining: self.minimum_remaining,
            years: self.duration,
-           tax_strategy: Some(self.tax_strategy),
+           tax_strategy: self.tax_strategy,
         }
     }
 }
