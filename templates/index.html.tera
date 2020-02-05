@@ -7,19 +7,19 @@
 <form method="GET" action="/sim">
     <div class="margin-m">
         <label>Initial capital</label>
-        <input name="capital" type="number" step="1000" min="0" value="1000000">
+        <input name="capital" type="number" step="1000" min="0" value="1000000" required>
     </div>
     <div class="margin-m">
         <label>Initial withdrawal range <small>(minimum &mdash; maximum)</small></label>
-        <input name="withdrawal_min" type="number" step="100" min="0" value="40000">
+        <input name="withdrawal_min" type="number" step="100" min="0" value="40000" required>
         &mdash;
-        <input name="withdrawal_max" type="number" step="100" min="0" value="40000">
+        <input name="withdrawal_max" type="number" step="100" min="0" value="40000" required>
 
         <div><small>The minimum withdrawal will be used whenever the portfolio dips below its initial value.</small></div>
     </div>
     <div class="margin-m">
         <label>Duration <small>(years)</small></label>
-        <input name="duration" type="number" min="5" max="80" step="1" value="30">
+        <input name="duration" type="number" min="5" max="80" step="1" value="30" required>
         <div><small>How many years the money should last.</small></div>
     </div>
     <div class="margin-m">
@@ -29,14 +29,14 @@
     </div>
     <div class="margin-m">
         <label>Taxes</label>
-        <select name="tax_strategy">
+        <select name="tax_strategy" required>
             <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
             <option value="tax free">tax free</option>
         </select>
     </div>
     <div class="margin-m">
         <label>Fees <small>(% per year)</small></label>
-        <input name="fees" type="number" step="0.01" min="0.00" max="20.00" value="0.15">
+        <input name="fees" type="number" step="0.01" min="0.00" max="20.00" value="0.15" required>
     </div>
     <div class="margin-m">
         <button type="submit">Run simulation</button>

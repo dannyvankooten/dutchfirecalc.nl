@@ -194,7 +194,8 @@ impl CsvRow {
                 let data : Vec<&str> = l.split_terminator(",").collect();
                     
                 CsvRow{
-                    date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").to_owned(),
+                    // ugly but cheap date parsing
+                    date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").replace("-012", "-12").to_owned(),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
                     dividend: data[2].to_owned().parse::<f32>().unwrap(),
                     //earnings: data[3].to_owned().parse::<f32>().unwrap(),
