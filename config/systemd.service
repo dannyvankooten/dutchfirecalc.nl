@@ -1,0 +1,16 @@
+[Unit]
+Description=Starts the dutchfirecalc server
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=dutchfirecalc
+Restart=always
+WorkingDirectory=/home/dutchfirecalc/app
+ExecStart=/home/dutchfirecalc/app/target/release/dutchfirecalc
+Environment="ROCKET_PORT=10000"
+Environment="ROCKET_ENV=production"
+
+[Install]
+WantedBy=multi-user.target
