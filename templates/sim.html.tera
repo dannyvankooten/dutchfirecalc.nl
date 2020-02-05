@@ -8,7 +8,7 @@
     </tr>
     <tr>
         <th>Initial withdrawal</th>
-        <td>€{{ params.withdrawal }}</td>
+        <td>€{{ params.withdrawal_min }} to {{ params.withdrawal_max }}</td>
     </tr>
     <tr>
         <th>Duration</th>

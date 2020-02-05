@@ -14,10 +14,10 @@ use crate::simulator;
 #[derive(FromForm, Debug, Clone, Serialize)]
 struct Params {
     capital: f32,
-    withdrawal: f32,
+    withdrawal_min: f32,
+    withdrawal_max: f32,
     fees: f32,
     minimum_remaining: f32,
-    withdrawal_strategy: String,
     tax_strategy: String,
     duration: usize,
 }
@@ -26,7 +26,8 @@ impl Into<simulator::Vars> for Params {
     fn into(self) -> simulator::Vars {
         simulator::Vars {
            initial_capital: self.capital,
-           initial_withdrawal: self.withdrawal,
+           initial_withdrawal_min: self.withdrawal_min,
+           initial_withdrawal_max: self.withdrawal_max,
            yearly_fees: self.fees,
            minimum_remaining: self.minimum_remaining,
            years: self.duration,

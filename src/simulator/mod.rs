@@ -22,7 +22,8 @@ struct Month {
 // TODO: Add support for variable withdrawals
 pub struct Vars {
     pub initial_capital: f32,
-    pub initial_withdrawal: f32,
+    pub initial_withdrawal_min: f32,
+    pub initial_withdrawal_max: f32,
     pub minimum_remaining: f32,
     pub yearly_fees: f32,
     pub years: usize,
@@ -57,16 +58,33 @@ impl Simulator {
         let mut succeeded = 0;
         let mut gains : f32;
         let mut fees : f32;
+
+        // run over each avilable sample
         for p in 0..samples {
             let mut capital = vars.initial_capital;
-            let mut withdrawal = vars.initial_withdrawal / 12.00;
+            // TODO: Use minimum withdrawal whenever portfolio dips below its initial value
+            let mut withdrawal_min = vars.initial_withdrawal_min / 12.00;
+            let mut withdrawal_max = vars.initial_withdrawal_max / 12.00;
+            let mut withdrawal : f32;
             let month_start_index = p;
             let month_end_index = p + (vars.years * 12);
-            for month in month_start_index..month_end_index {
-                withdrawal = withdrawal + withdrawal * self.data[month].inflation;
-                gains = capital * self.data[month].roi;
-                fees = fees_pct * capital;
 
+            // run over each month 
+            for month in month_start_index..month_end_index {
+                // adjust withdrawal values for inflation
+                withdrawal_min = withdrawal_min + withdrawal_min * self.data[month].inflation;
+                withdrawal_max = withdrawal_max + withdrawal_max * self.data[month].inflation;
+
+                // calculate capital gains (price increase + dividends)
+                gains = capital * self.data[month].roi;
+
+                // calculate fees
+                fees = fees_pct * capital;
+                
+                // determine amount to withdraw
+                withdrawal = if capital < vars.initial_capital { withdrawal_min } else { withdrawal_max };
+                
+                // calculate new capital value
                 capital = capital + gains - fees - withdrawal;              
 
                 if capital < 0.0 {
