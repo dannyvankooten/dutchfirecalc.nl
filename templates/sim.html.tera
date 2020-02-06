@@ -13,7 +13,7 @@
 {% for r in rows %}
     <tr>
         <td>{{ r.date_start }} &mdash; {{ r.date_end }}</td>
-        <td>€{{ r.end_capital }}</td>
+        <td>€{{ r.end_capital | money }}</td>
         <td>{{ r.duration / 12 | round }} years</td>
     </tr>
 {% endfor %}
@@ -25,11 +25,11 @@
 <table>
     <tr>
         <th>Initial capital</th>
-        <td>€{{ params.capital }}</td>
+        <td>€{{ params.capital | money }}</td>
     </tr>
     <tr>
         <th>Initial withdrawal</th>
-        <td>€{{ params.withdrawal_min }}</td>
+        <td>€{{ params.withdrawal_min | money }}</td>
     </tr>
     <tr>
         <th>Duration</th>
@@ -41,7 +41,7 @@
     </tr>
     <tr>
         <th>Minimum remaining capital</th>
-        <td>€{{ params.minimum_remaining | round(precision=2) }}</td>
+        <td>€{{ params.minimum_remaining | money }}</td>
     </tr>
     <tr>
          <th>Tax strategy</th>
@@ -54,7 +54,7 @@ This simulation had a success rate of <strong>{{ success_ratio | round(precision
 </p>
 
 <p>
-The median end capital was €<strong>{{ median | round(precision=2) }}</strong> (not adjusted for inflation).
+The median end capital was €<strong>{{ median | money }}</strong> (not adjusted for inflation).
 </p>
 
 <p>In the worst period, this portfolio lasted {{ head.0.duration / 12 | round }} years.</p>

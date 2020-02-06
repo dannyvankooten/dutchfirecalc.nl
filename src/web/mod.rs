@@ -1,12 +1,12 @@
 use rocket_contrib::templates::Template;
 use rocket::response::NamedFile;
 use rocket::request::{FromForm, Form};
-
-use rocket_contrib::templates::tera::Context;
+use num_format::{Locale, ToFormattedString};
+use rocket_contrib::templates::tera::{Context, Value, to_value, Error};
 use serde::Serialize;
-
 use std::path::PathBuf;
 use std::path::Path;
+use std::collections::HashMap;
 
 use crate::simulator;
 
@@ -66,6 +66,15 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 pub fn run() {
     rocket::ignite()
         .mount("/", routes![index, files, sim])
-        .attach(Template::fairing())
+        .attach(Template::custom(|engines| {
+            engines.tera.register_filter("money", format_money)
+         }))
         .launch();
+}
+
+fn format_money(v: Value, _params: HashMap<String, Value>) -> Result<Value, Error> {
+    match v.as_u64() {
+        Some(i) => Ok(to_value(i.to_formatted_string(&Locale::en)).unwrap()),
+        _ => Ok(v)
+    }
 }
