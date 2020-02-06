@@ -1,5 +1,6 @@
 use rocket_contrib::templates::Template;
 use rocket::response::NamedFile;
+use rocket::State;
 use rocket::request::{FromForm, Form};
 use num_format::{Locale, ToFormattedString};
 use rocket_contrib::templates::tera::{Context, Value, to_value, Error};
@@ -42,21 +43,23 @@ fn index() -> Template {
     Template::render("index", &context)
 }
 
+
 #[get("/sim?<params..>")]
-fn sim(params : Form<Params>) -> Template {
+fn sim(sim: State<simulator::Simulator>, params : Form<Params>) -> Template {
     let params = params.into_inner();
-    let mut context = Context::new();
-    let sim = simulator::new();
     let results = sim.run(params.clone().into());
 
+    let mut context = Context::new();
     context.insert("params", &params);
     context.insert("success_ratio", &results.success_ratio);
     context.insert("median", &results.median());
     context.insert("tail", &results.tail(5));
     context.insert("head", &results.head(5));
     context.insert("samples", &results.periods.len());
-    Template::render("sim", &context)
+    return Template::render("sim", &context);
 }
+
+
 
 #[get("/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
@@ -64,11 +67,16 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 }
 
 pub fn run() {
+    // create simulator instance
+    let simulator = simulator::new();
+
+    // boot rocket server
     rocket::ignite()
         .mount("/", routes![index, files, sim])
         .attach(Template::custom(|engines| {
             engines.tera.register_filter("money", format_money)
          }))
+        .manage(simulator)
         .launch();
 }
 
