@@ -63,9 +63,9 @@ impl Results {
         let size = self.periods.len();
         if size % 2 == 0 {
             return (self.periods[size / 2 - 1].end_capital + self.periods[size / 2].end_capital) / 2;
-        } else {
-            return self.periods[size/2].end_capital;
         }
+        
+        return self.periods[size / 2].end_capital;
     }
 
     pub fn tail(&self, n : usize) -> &[Period] {
@@ -108,7 +108,7 @@ impl Simulator {
         let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
             "vermogensbelasting 2022" => taxes::vermogensbelasting_2022,
-            "tax free" | "" | _=> taxes::tax_free,
+            _=> taxes::tax_free,
         };
         let mut successful_runs : usize = 0;
         let mut results : Vec<Period> = Vec::with_capacity(samples);
@@ -131,9 +131,7 @@ impl Simulator {
             let mut month = month_start_index;
             while month < month_end_index {
                 // adjust withdrawal values for inflation
-                cum_inflation = cum_inflation * ( 1.0 + self.data[month].inflation );
-                //withdrawal_min = withdrawal_min * cum_inflation;
-                //withdrawal_max = withdrawal_max * cum_inflation;
+                cum_inflation *= 1.0 + self.data[month].inflation;
 
                 // calculate capital gains (price increase + dividends)
                 gains = capital * self.data[month].roi;
@@ -154,7 +152,7 @@ impl Simulator {
                     break;
                 }
 
-                month = month + 1;
+                month += 1;
             }
 
 
@@ -163,7 +161,7 @@ impl Simulator {
 
             // run succeeded if we have more money left than intended 
             if end_capital > vars.minimum_remaining {
-                successful_runs = successful_runs + 1;
+                successful_runs += 1;
             }
             
             results.push(Period{
@@ -226,11 +224,11 @@ impl CsvRow {
         let dataset : Vec<CsvRow> = input.lines()
             .skip(1) // skip heading
             .map(|l| {
-                let data : Vec<&str> = l.split_terminator(",").collect();
+                let data : Vec<&str> = l.split_terminator(',').collect();
                     
                 CsvRow{
                     // ugly but cheap date parsing
-                    date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").replace("-012", "-12").to_owned(),
+                    date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").replace("-012", "-12"),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
                     dividend: data[2].to_owned().parse::<f32>().unwrap_or(0.0),
                     //earnings: data[3].to_owned().parse::<f32>().unwrap(),
