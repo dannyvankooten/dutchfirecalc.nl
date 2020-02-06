@@ -240,3 +240,38 @@ impl CsvRow {
         dataset
     }
 }
+
+#[cfg(test)] 
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_simulator_run() {
+        let sim = new();
+        let results = sim.run(Vars{
+            initial_capital: 100,
+            initial_withdrawal_min: 4,
+            initial_withdrawal_max: 4,
+            yearly_fees: 0.00,
+            tax_strategy: String::new(),
+            years: 30,
+            minimum_remaining: 0,
+        });
+
+        // better way would be to use a test specific dataset
+        assert_eq!(results.success_ratio > 95.0, true);
+        assert_eq!(results.success_ratio < 99.0, true);
+
+        // anoter obvious one
+        let results = sim.run(Vars{
+            initial_capital: 100,
+            initial_withdrawal_min: 0,
+            initial_withdrawal_max: 0,
+            yearly_fees: 0.00,
+            tax_strategy: String::new(),
+            years: 30,
+            minimum_remaining: 0,
+        });
+        assert_eq!(results.success_ratio, 100.0);
+    }
+}
