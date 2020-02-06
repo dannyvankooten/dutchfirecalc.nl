@@ -21,8 +21,15 @@
     <div class="c">
         <footer>
             <small>
-                <a href="https://github.com/dannyvankooten/dutchfirecalc.nl">Source code on GitHub</a>
-            </small>
+                <a href="https://github.com/dannyvankooten/dutchfirecalc.nl">Source code on GitHub</a> 
+                &nbsp;&mdash;&nbsp;
+                Looking for the <a href="https://old.dutchfirecalc.nl/">old version of Dutch FIRE Calc</a>?
+              </small>
+              <br />
+              <br />
+              <small>
+                Made with &#10084; by <a href="https://dannyvankooten.com/">Danny van Kooten</a>
+              </small>
         </footer>
     </div>
   </body>
