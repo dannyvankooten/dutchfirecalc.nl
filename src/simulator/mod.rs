@@ -107,21 +107,23 @@ impl Simulator {
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
         let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
+            "vermogensbelasting 2022" => taxes::vermogensbelasting_2022,
             "tax free" | "" | _=> taxes::tax_free,
         };
         let mut successful_runs : usize = 0;
         let mut results : Vec<Period> = Vec::with_capacity(samples);
         let initial_capital = vars.initial_capital as f32;
+        let withdrawal_min = vars.initial_withdrawal_min as f32 / 12.00;
+        let withdrawal_max = vars.initial_withdrawal_max as f32 / 12.00;
+        let mut withdrawal : f32;
+        let mut taxes : f32;
+        let mut gains : f32;
+        let mut fees : f32;
 
         // run over each available sample
         for p in 0..samples {
             let mut capital = initial_capital;
-            let mut withdrawal_min = vars.initial_withdrawal_min as f32 / 12.00;
-            let mut withdrawal_max = vars.initial_withdrawal_max as f32 / 12.00;
-            let mut withdrawal : f32;
-            let mut taxes : f32;
-            let mut gains : f32;
-            let mut fees : f32;
+            let mut cum_inflation = 1.00;
             let month_start_index = p;
             let month_end_index = p + months;
 
@@ -129,8 +131,9 @@ impl Simulator {
             let mut month = month_start_index;
             while month < month_end_index {
                 // adjust withdrawal values for inflation
-                withdrawal_min = withdrawal_min + withdrawal_min * self.data[month].inflation;
-                withdrawal_max = withdrawal_max + withdrawal_max * self.data[month].inflation;
+                cum_inflation = cum_inflation * ( 1.0 + self.data[month].inflation );
+                //withdrawal_min = withdrawal_min * cum_inflation;
+                //withdrawal_max = withdrawal_max * cum_inflation;
 
                 // calculate capital gains (price increase + dividends)
                 gains = capital * self.data[month].roi;
@@ -139,7 +142,7 @@ impl Simulator {
                 fees = fees_pct * capital;
                 
                 // determine amount to withdraw
-                withdrawal = if capital < initial_capital { withdrawal_min } else { withdrawal_max };
+                withdrawal = if capital < initial_capital { withdrawal_min * cum_inflation } else { withdrawal_max * cum_inflation };
 
                 // calculate taxes every 12th month
                 taxes = if month % 12 == 0 { tax_fn(capital, gains) } else { 0.00 };
@@ -154,23 +157,25 @@ impl Simulator {
                 month = month + 1;
             }
 
-            let end_capital = capital.max(0.00) as u64;
 
-            // store end capital in results array
+            // adjust end capital for inflation
+            let end_capital = (capital.max(0.00) / cum_inflation) as u64;
+
+            // run succeeded if we have more money left than intended 
+            if end_capital > vars.minimum_remaining {
+                successful_runs = successful_runs + 1;
+            }
+            
             results.push(Period{
                 end_capital: end_capital,
                 duration: month - month_start_index,
                 date_start: self.data[month_start_index].date.to_owned(),
                 date_end: self.data[month_end_index].date.to_owned(),
             });
-
-            if end_capital > vars.minimum_remaining {
-                successful_runs = successful_runs + 1;
-            }
         }
 
-        // sort end capitals
-        results.sort_unstable();
+        // sort end capitals & durations (in reverse)
+        results.sort_unstable_by(|a, b| b.cmp(a));
 
         return Results{
             success_ratio: successful_runs as f32 / samples as f32 * 100.0,
@@ -227,7 +232,7 @@ impl CsvRow {
                     // ugly but cheap date parsing
                     date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").replace("-012", "-12").to_owned(),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
-                    dividend: data[2].to_owned().parse::<f32>().unwrap(),
+                    dividend: data[2].to_owned().parse::<f32>().unwrap_or(0.0),
                     //earnings: data[3].to_owned().parse::<f32>().unwrap(),
                     cpi: data[4].to_owned().parse::<f32>().unwrap(),
                     //cape: data[5].to_owned().parse::<f32>().unwrap(),

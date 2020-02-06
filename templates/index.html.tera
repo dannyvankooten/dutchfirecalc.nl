@@ -1,8 +1,8 @@
 {% extends "base" %}
 
 {% block content %}
-<p>This tool simulates portfolio performance using a yearly spending amount (adjusted for inflation), investment fees and real tax calculation.</p>
-<p>The simulation uses historical returns for the S&P 500 with dividends re-invested, going back to 1871.</p>
+<p>This tool simulates portfolio performance using an inflation adjusted withdrawal, investment fees and Duch tax rulings.</p>
+<p>The simulation uses historical S&P 500 returns and inflation numbers from <a href="http://www.econ.yale.edu/~shiller/data.htm">Robert Shiller</a>, with data ranging from 1871 until the present.</p>
 
 <form method="GET" action="/sim">
     <div class="margin-m">
@@ -22,12 +22,13 @@
     <div class="margin-m">
         <label>Minimum capital remaining</label>
         <input name="minimum_remaining" type="number" step="1000" min="0" value="0">
-        <div><small>How much money should be left over at the end of the duration.</small></div>
+        <div><small>The (inflation adjusted) amount of capital that should be left over at the end of the duration.</small></div>
     </div>
     <div class="margin-m">
         <label>Taxes</label>
         <select name="tax_strategy" required>
             <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
+            <option value="vermogensbelasting 2022">vermogensbelasting 2022 (voorstel)</option>
             <option value="tax free">tax free</option>
         </select>
     </div>

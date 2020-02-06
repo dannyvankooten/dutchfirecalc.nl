@@ -12,7 +12,7 @@
 <tbody>
 {% for r in rows %}
     <tr>
-        <td>{{ r.date_start }} &mdash; {{ r.date_end }}</td>
+        <td>{{ r.date_start }} / {{ r.date_end }}</td>
         <td>€{{ r.end_capital | money }}</td>
         <td>{{ r.duration / 12 | round }} years</td>
     </tr>
@@ -54,16 +54,16 @@ This simulation had a success rate of <strong>{{ success_ratio | round(precision
 </p>
 
 <p>
-The median end capital was €<strong>{{ median | money }}</strong> (not adjusted for inflation).
+The median end capital was €<strong>{{ median | money }}</strong>.
 </p>
 
-<p>In the worst period, this portfolio lasted {{ head.0.duration / 12 | round }} years.</p>
+<p>In the worst period, this portfolio lasted {{tail.4.duration / 12 | round }} years.</p>
 
 <h3>5 worst periods</h3>
-{{ self::table(rows=head) }}
+{{ self::table(rows=tail | reverse) }}
 
 <h3>5 best periods</h3>
-{{ self::table(rows=tail) }}
+{{ self::table(rows=head) }}
 
 
 <p>
