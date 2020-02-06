@@ -29,7 +29,7 @@
     </tr>
     <tr>
         <th>Initial withdrawal</th>
-        <td>€{{ params.withdrawal_min }} to {{ params.withdrawal_max }}</td>
+        <td>€{{ params.withdrawal_min }} to €{{ params.withdrawal_max }}</td>
     </tr>
     <tr>
         <th>Duration</th>
@@ -37,11 +37,11 @@
     </tr>
     <tr>
         <th>Yearly fees</th>
-        <td>{{ params.fees | round(method="floor", precision=2) }}%</td>
+        <td>{{ params.fees | round(precision=2) }}%</td>
     </tr>
     <tr>
         <th>Minimum remaining capital</th>
-        <td>€{{ params.minimum_remaining | round(method="floor", precision=2) }}</td>
+        <td>€{{ params.minimum_remaining | round(precision=2) }}</td>
     </tr>
     <tr>
          <th>Tax strategy</th>
@@ -50,10 +50,10 @@
 </table>
 
 <p>
-The simulated portfolio had a success rate of <strong>{{ success_ratio | round(method="floor", precision=2) }}%</strong> out of {{ samples }} tested periods. 
+The simulated portfolio had a success rate of <strong>{{ success_ratio | round(precision=2) }}%</strong> out of {{ samples }} tested periods. 
 </p>
 <p>
-The median end capital was €<strong>{{ median | round(method="floor", precision=2) }}</strong> (not adjusted for inflation).
+The median end capital was €<strong>{{ median | round(precision=2) }}</strong> (not adjusted for inflation).
 </p>
 
 <p>In the worst period, this portfolio lasted {{ tail.0.duration / 12 | round }} years.</p>
