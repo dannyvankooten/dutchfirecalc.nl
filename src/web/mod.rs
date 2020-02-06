@@ -15,7 +15,7 @@ use crate::simulator;
 struct Params {
     capital: u64,
     withdrawal_min: u64,
-    withdrawal_max: u64,
+    withdrawal_max: Option<u64>,
     fees: f32,
     minimum_remaining: u64,
     tax_strategy: String,
@@ -27,7 +27,7 @@ impl Into<simulator::Vars> for Params {
         simulator::Vars {
            initial_capital: self.capital,
            initial_withdrawal_min: self.withdrawal_min,
-           initial_withdrawal_max: self.withdrawal_max,
+           initial_withdrawal_max: self.withdrawal_max.unwrap_or(self.withdrawal_min),
            yearly_fees: self.fees,
            minimum_remaining: self.minimum_remaining,
            years: self.duration,

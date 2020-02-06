@@ -2,6 +2,7 @@
 use std::fs;
 use serde::Serialize;
 use std::cmp::{min, max};
+use std::cmp::Ordering;
 
 mod taxes;
 
@@ -15,13 +16,42 @@ pub struct Vars {
     pub tax_strategy: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Eq)]
 pub struct Period {
     pub duration: usize,
     pub end_capital: u64,
     pub date_start: String,
     pub date_end: String,
 }
+
+impl PartialEq for Period {
+    fn eq(&self, other: &Self) -> bool {
+        self.duration == other.duration && self.end_capital == other.end_capital
+    }
+}
+
+impl PartialOrd for Period {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Period {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.end_capital > other.end_capital {
+            Ordering::Greater
+        } else if self.end_capital == other.end_capital {
+            if self.duration > other.duration {
+                Ordering::Greater
+            } else {
+                Ordering::Less
+            }
+        } else {
+            Ordering::Less
+        }
+    }
+}
+
 
 pub struct Results {
     pub success_ratio : f32,
@@ -140,7 +170,7 @@ impl Simulator {
         }
 
         // sort end capitals
-        results.sort_unstable_by(|a, b| b.end_capital.cmp(&a.end_capital));
+        results.sort_unstable();
 
         return Results{
             success_ratio: successful_runs as f32 / samples as f32 * 100.0,

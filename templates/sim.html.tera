@@ -29,7 +29,7 @@
     </tr>
     <tr>
         <th>Initial withdrawal</th>
-        <td>€{{ params.withdrawal_min }} to €{{ params.withdrawal_max }}</td>
+        <td>€{{ params.withdrawal_min }}</td>
     </tr>
     <tr>
         <th>Duration</th>
@@ -50,19 +50,21 @@
 </table>
 
 <p>
-The simulated portfolio had a success rate of <strong>{{ success_ratio | round(precision=2) }}%</strong> out of {{ samples }} tested periods. 
+This simulation had a success rate of <strong>{{ success_ratio | round(precision=2) }}%</strong> out of {{ samples }} tested periods. 
 </p>
+
 <p>
 The median end capital was €<strong>{{ median | round(precision=2) }}</strong> (not adjusted for inflation).
 </p>
 
-<p>In the worst period, this portfolio lasted {{ tail.0.duration / 12 | round }} years.</p>
+<p>In the worst period, this portfolio lasted {{ head.0.duration / 12 | round }} years.</p>
 
 <h3>5 worst periods</h3>
-{{ self::table(rows=tail) }}
+{{ self::table(rows=head) }}
 
 <h3>5 best periods</h3>
-{{ self::table(rows=head) }}
+{{ self::table(rows=tail) }}
+
 
 <p>
     <small><a href="/">Go back</a></small>

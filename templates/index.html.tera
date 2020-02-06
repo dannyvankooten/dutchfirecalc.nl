@@ -10,12 +10,9 @@
         <input name="capital" type="number" step="1000" min="0" value="1000000" required>
     </div>
     <div class="margin-m">
-        <label>Initial withdrawal range <small>(minimum &mdash; maximum)</small></label>
+        <label>Initial withdrawal</label>
         <input name="withdrawal_min" type="number" step="100" min="0" value="40000" required>
-        &mdash;
-        <input name="withdrawal_max" type="number" step="100" min="0" value="40000" required>
-
-        <div><small>The minimum withdrawal will be used whenever the portfolio dips below its initial value.</small></div>
+        <div><small>The amount to withdraw per year. This will be adjusted for inflation.</small></div>
     </div>
     <div class="margin-m">
         <label>Duration <small>(years)</small></label>
