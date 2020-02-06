@@ -1,7 +1,7 @@
 {% extends "base" %}
 
 {% block content %}
-<p>This tool simulates portfolio performance using an inflation adjusted withdrawal, investment fees and Duch tax rulings.</p>
+<p>This tool simulates portfolio performance using an inflation adjusted withdrawal, investment fees and Dutch tax rulings.</p>
 <p>The simulation uses historical S&P 500 returns and inflation numbers from <a href="http://www.econ.yale.edu/~shiller/data.htm">Robert Shiller</a>, with data ranging from 1871 until the present.</p>
 
 <form method="GET" action="/sim">
