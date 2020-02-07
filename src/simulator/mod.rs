@@ -1,7 +1,6 @@
 
 use std::fs;
 use serde::Serialize;
-use std::cmp::{min, max};
 use std::cmp::Ordering;
 
 mod taxes;
@@ -16,7 +15,7 @@ pub struct Vars {
     pub tax_strategy: String,
 }
 
-#[derive(Serialize, Eq)]
+#[derive(Serialize, Eq, Clone)]
 pub struct Period {
     pub duration: usize,
     pub end_capital: u64,
@@ -59,6 +58,16 @@ pub struct Results {
 }
 
 impl Results {
+    pub fn new(mut results: Vec<Period>, successful_runs: usize) -> Results {
+         // sort end capitals & durations (in reverse)
+         results.sort_unstable_by(|a, b| b.cmp(a));
+
+         return Results{
+             success_ratio: successful_runs as f32 / results.len() as f32 * 100.0,
+             periods: results,
+         }
+    }
+
     pub fn median(&self) -> u64 {
         let size = self.periods.len();
         if size % 2 == 0 {
@@ -68,14 +77,17 @@ impl Results {
         return self.periods[size / 2].end_capital;
     }
 
-    pub fn tail(&self, n : usize) -> &[Period] {
-        let start = max(self.periods.len() - n, 0);
-        return &self.periods[start..];
+    pub fn tail<'a> (&'a self, n : usize) -> Vec<Period> {
+        let mut iter = self.periods.rchunks(n);
+        let chunk = iter.next().unwrap();
+        let mut chunk = chunk.to_vec();
+        chunk.reverse();
+        return chunk;
     }
 
     pub fn head(&self, n : usize) -> &[Period] {
-        let end = min(self.periods.len(), n);
-        return &self.periods[0..end];
+        let mut iter = self.periods.chunks(n);
+        return iter.next().unwrap();
     }
 }
 
@@ -172,13 +184,7 @@ impl Simulator {
             });
         }
 
-        // sort end capitals & durations (in reverse)
-        results.sort_unstable_by(|a, b| b.cmp(a));
-
-        return Results{
-            success_ratio: successful_runs as f32 / samples as f32 * 100.0,
-            periods: results,
-        }
+        return Results::new(results, successful_runs);
     }
 }
 
@@ -274,4 +280,37 @@ mod test {
         });
         assert_eq!(results.success_ratio, 100.0);
     }
+
+    #[test]
+    fn test_results() {
+        let periods = vec![
+            Period{
+                duration: 30,
+                end_capital: 400,
+                date_start: String::new(),
+                date_end: String::new(),
+            },
+            Period{
+                duration: 30,
+                end_capital: 100,
+                date_start: String::new(),
+                date_end: String::new(),
+            },
+            Period{
+                duration: 30,
+                end_capital: 900,
+                date_start: String::new(),
+                date_end: String::new(),
+            }
+        ];
+        let results = Results::new(periods, 3);
+        assert_eq!(results.median(), 400);
+        assert_eq!(results.head(1)[0].end_capital, 900);
+        assert_eq!(results.head(10)[0].end_capital, 900);
+        assert_eq!(results.tail(1)[0].end_capital, 100);
+        assert_eq!(results.tail(10)[0].end_capital, 100);
+    }
+
+
+
 }

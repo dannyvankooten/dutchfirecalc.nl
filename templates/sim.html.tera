@@ -57,16 +57,25 @@ This simulation had a success rate of <strong>{{ success_ratio | round(precision
 The median end capital was €<strong>{{ median | money }}</strong>.
 </p>
 
-<p>In the worst period, this portfolio lasted {{tail.4.duration / 12 | round }} years.</p>
+<p>In the worst period, this portfolio lasted {{tail.0.duration / 12 | round }} years.</p>
 
+<div>
 <h3>5 worst periods</h3>
-{{ self::table(rows=tail | reverse) }}
+{{ self::table(rows=tail ) }}
+</div>
 
+<div>
 <h3>5 best periods</h3>
 {{ self::table(rows=head) }}
+</div>
 
+<p>
+    <small>* All monetary amounts shown are adjusted for inflation.</small>
+</p>
 
 <p>
     <small><a href="/">Go back</a></small>
 </p>
+
+
 {% endblock content %}

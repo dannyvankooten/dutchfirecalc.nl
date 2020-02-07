@@ -1,18 +1,19 @@
 {% extends "base" %}
 
 {% block content %}
-<p>This tool simulates portfolio performance using an inflation adjusted withdrawal, investment fees and Duch tax rulings.</p>
-<p>The simulation uses historical S&P 500 returns and inflation numbers from <a href="http://www.econ.yale.edu/~shiller/data.htm">Robert Shiller</a>, with data ranging from 1871 until the present.</p>
+<p>This tool calculates how your portfolio would have fared throughout history while taking yearly withdrawals, taxes and fees into account.</p>
+<p>It uses historical S&P 500 returns and inflation numbers from <a href="http://www.econ.yale.edu/~shiller/data.htm">Robert Shiller</a>, with data ranging from 1871 until the present.</p>
 
 <form method="GET" action="/sim">
     <div class="margin-m">
         <label>Initial capital</label>
         <input name="capital" type="number" step="1000" min="0" value="1000000" required>
+        <div><small>The amount that you have invested into stocks.</small></div>
     </div>
     <div class="margin-m">
         <label>Initial withdrawal</label>
         <input name="withdrawal_min" type="number" step="100" min="0" value="40000" required>
-        <div><small>The amount to withdraw per year. This will be adjusted for inflation.</small></div>
+        <div><small>The total amount to withdraw in the first year. This will be adjusted for inflation in consecutive years.</small></div>
     </div>
     <div class="margin-m">
         <label>Duration <small>(years)</small></label>
@@ -22,7 +23,7 @@
     <div class="margin-m">
         <label>Minimum capital remaining</label>
         <input name="minimum_remaining" type="number" step="1000" min="0" value="0">
-        <div><small>The (inflation adjusted) amount of capital that should be left over at the end of the duration.</small></div>
+        <div><small>The inflation adjusted amount that should be left over at the end of the duration.</small></div>
     </div>
     <div class="margin-m">
         <label>Taxes</label>
@@ -40,4 +41,27 @@
         <button type="submit">Run simulation</button>
     </div>
 </form>
+
+
+<div id="faq">
+
+    <h3>Frequently asked questions</h3>
+
+    <div>
+        <h4>What is Dutch FIRE Calc?</h4>
+        <p>
+            Dutch FIRE Calc is basically an interface for the <a href="https://en.m.wikipedia.org/wiki/Trinity_study">Trinity Study</a>.
+            It aims to answer the question "how long will my retirement savings last if the next few decades are anything like the past 150 years".
+        </p>
+    </div>
+
+
+    <div>
+        <h4>How to determine my withdrawal amount?</h4>
+        <p>
+           The withdrawal amount should be your normal living expenses, but excluding taxes (as they will be calculated separately).
+        </p>
+    </div>
+
+</div>
 {% endblock content %}

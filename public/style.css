@@ -8,8 +8,8 @@ nav a:hover,nav a:focus { color:white; text-decoration: underline }
 img { max-width:100%; height:auto; }
 main { line-height:1.6; }
 h1 { margin:0; }
-h2,h3,h4,h5 { margin:2em 0 0; }
-p,blockquote,ul,table,pre,hr { margin:1em 0; }
+h2,h3,h4,h5 { margin:2em 0 0.5em; }
+p,blockquote,ul,table,pre,hr { margin:0 0 1em 0; }
 ul { padding-left:1em; }
 blockquote { background:#F0FBFF; padding:0 1em; border:1px solid #D7EDF5; }
 hr { border:1px dotted; margin:2em 0; }
