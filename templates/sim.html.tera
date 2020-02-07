@@ -11,7 +11,7 @@
 </thead>
 <tbody>
 {% for r in rows %}
-    <tr>
+    <tr data-start="{{ r.date_start }}" data-end="{{ r.date_end }}">
         <td>{{ r.date_start }} / {{ r.date_end }}</td>
         <td>€{{ r.end_capital | money }}</td>
         <td>{{ r.duration / 12 | round }} years</td>
@@ -69,6 +69,10 @@ The median end capital was €<strong>{{ median | money }}</strong>.
 {{ self::table(rows=head) }}
 </div>
 
+
+<h3>Historical prices for the S&P 500</h3>
+<div id="graph" class="mm"></div>
+
 <p>
     <small>* All monetary amounts shown are adjusted for inflation.</small>
 </p>
@@ -77,5 +81,7 @@ The median end capital was €<strong>{{ median | money }}</strong>.
     <small><a href="/">Go back</a></small>
 </p>
 
+<script src="/d3.min.js"></script>
+<script src="/script.js"></script>
 
 {% endblock content %}

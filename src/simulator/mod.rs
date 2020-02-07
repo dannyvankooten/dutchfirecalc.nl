@@ -189,7 +189,7 @@ impl Simulator {
 }
 
 pub fn new() -> Simulator {
-    let data : Vec<Month> = CsvRow::from_file("data.csv").windows(2).map(|r| {
+    let data : Vec<Month> = CsvRow::from_file("public/data.csv").windows(2).map(|r| {
         let price_change = r[1].price / r[0].price - 1.00;
         let inflation_change = r[1].cpi / r[0].cpi - 1.00;
         let div_yield = r[1].dividend / r[1].price / 12.00;
@@ -213,8 +213,6 @@ struct CsvRow {
     price : f32,
     dividend: f32,
     cpi: f32,
-    //earnings: f32,
-    //cape: f32
 }
 
 #[derive(Debug)]
@@ -225,6 +223,18 @@ struct Month {
 }
 
 impl CsvRow {
+    fn parse_date(d : &str) -> String {
+        let mut parts = d.split_terminator('.');
+        let year = parts.next().unwrap();
+        let month = parts.next().unwrap();
+        let month = match month {
+            "1" => "10",
+            _ => month,
+        };
+
+        return format!("{}-{}", year, month);
+    }
+
     fn from_file<P: AsRef<std::path::Path>>(path: P) -> Vec<CsvRow> {
         let input = fs::read_to_string(path).unwrap();
         let dataset : Vec<CsvRow> = input.lines()
@@ -233,13 +243,10 @@ impl CsvRow {
                 let data : Vec<&str> = l.split_terminator(',').collect();
                     
                 CsvRow{
-                    // ugly but cheap date parsing
-                    date: data[0].replace(".", "-").replace("-1", "-01").replace("-011", "-11").replace("-012", "-12"),
+                    date: Self::parse_date(data[0]),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
                     dividend: data[2].to_owned().parse::<f32>().unwrap_or(0.0),
-                    //earnings: data[3].to_owned().parse::<f32>().unwrap(),
                     cpi: data[4].to_owned().parse::<f32>().unwrap(),
-                    //cape: data[5].to_owned().parse::<f32>().unwrap(),
                 }
             }).collect();
 
@@ -312,5 +319,15 @@ mod test {
     }
 
 
+    #[test]
+    fn test_parse_date() {
+        assert_eq!(CsvRow::parse_date("2019.01"), "2019-01");
+        assert_eq!(CsvRow::parse_date("2019.02"), "2019-02");
 
+        // this happens because of copying the dataset from XLS -> CSV
+        assert_eq!(CsvRow::parse_date("2019.1"), "2019-10");
+        assert_eq!(CsvRow::parse_date("2019.11"), "2019-11");
+        assert_eq!(CsvRow::parse_date("2019.12"), "2019-12");
+
+    }
 }
