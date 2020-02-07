@@ -16,11 +16,11 @@ use crate::simulator;
 struct Params {
     capital: u64,
     withdrawal_min: u64,
-    withdrawal_max: Option<u64>,
-    fees: f32,
-    minimum_remaining: u64,
-    tax_strategy: String,
     duration: usize,
+    withdrawal_max: Option<u64>,
+    fees: Option<f32>,
+    minimum_remaining: Option<u64>,
+    tax_strategy: Option<String>,
 }
 
 impl Into<simulator::Vars> for Params {
@@ -29,10 +29,10 @@ impl Into<simulator::Vars> for Params {
            initial_capital: self.capital,
            initial_withdrawal_min: self.withdrawal_min,
            initial_withdrawal_max: self.withdrawal_max.unwrap_or(self.withdrawal_min),
-           yearly_fees: self.fees,
-           minimum_remaining: self.minimum_remaining,
+           yearly_fees: self.fees.unwrap_or(0.00),
+           minimum_remaining: self.minimum_remaining.unwrap_or(0),
            years: self.duration,
-           tax_strategy: self.tax_strategy,
+           tax_strategy: self.tax_strategy.unwrap_or(String::from("")),
         }
     }
 }
