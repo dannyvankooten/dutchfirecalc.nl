@@ -1,12 +1,12 @@
 pub fn vermogensbelasting_2020(capital: f32, _gains: f32, _with_partner: bool, _with_heffingskorting: bool) -> f32 {
-    let capital = if _with_partner { capital / 2.0 } else { capital } - 30_846.0;
+    let capital = if _with_partner { capital / 2.0 } else { capital } - 30_846.00;
     if capital < 0.00 {
       return 0.00;
     }
 
-    let schijf_1 = (capital.min(72_798.0) * 0.01789).floor();
-    let schijf_2 = ((0.00 as f32).max(capital.min(1_005_573.0) - 72_798.0) * 0.04185).floor();
-    let schijf_3 = ((0.00 as f32).max(capital - 1_005_573.0) * 0.0528).floor();
+    let schijf_1 = (capital.min(72_798.00) * 0.01789).floor();
+    let schijf_2 = ((0.00 as f32).max(capital.min(1_005_573.00) - 72_798.00) * 0.04185).floor();
+    let schijf_3 = ((0.00 as f32).max(capital - 1_005_573.00) * 0.0528).floor();
     let heffingskorting = if _with_heffingskorting { 2_711.00 } else { 0.00 };
     let schijven = schijf_1 + schijf_2 + schijf_3;
     let tax = (0.00 as f32).max((schijven * 0.30).floor() - heffingskorting);
@@ -19,7 +19,7 @@ pub fn vermogensbelasting_2022(capital: f32, _gains: f32, _with_partner: bool, _
       return 0.00;
   };
 
-  let belastingvrij_rendement = if _with_partner { 400.0 * 2.0 } else { 400.00 };
+  let belastingvrij_rendement = if _with_partner { 400.00 * 2.0 } else { 400.00 };
   return (0.00 as f32).max(0.33 * (0.0533 * capital - belastingvrij_rendement).floor()).floor();
 }
 
