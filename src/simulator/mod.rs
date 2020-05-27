@@ -155,7 +155,7 @@ impl Simulator {
                 withdrawal = if capital < initial_capital { withdrawal_min * cum_inflation } else { withdrawal_max * cum_inflation };
 
                 // calculate taxes every 12th month
-                taxes = if month % 12 == 0 { tax_fn(capital, gains) } else { 0.00 };
+                taxes = if month % 12 == 0 { tax_fn(capital, gains, false, false) } else { 0.00 };
                 
                 // calculate new capital value
                 capital = capital + gains - fees - taxes - withdrawal;              
