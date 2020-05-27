@@ -26,6 +26,10 @@
         <div><small>The inflation adjusted amount that should be left over at the end of the duration.</small></div>
     </div>
     <div class="margin-m">
+        <label>Fees <small>(% per year)</small></label>
+        <input name="fees" type="number" step="0.01" min="0.00" max="20.00" value="0.15" required>
+    </div>
+    <div class="margin-m">
         <label>Taxes</label>
         <select name="tax_strategy" required>
             <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
@@ -33,10 +37,15 @@
             <option value="tax free">tax free</option>
         </select>
     </div>
-    <div class="margin-m">
-        <label>Fees <small>(% per year)</small></label>
-        <input name="fees" type="number" step="0.01" min="0.00" max="20.00" value="0.15" required>
-    </div>
+    <details id="misc-tax-settings">
+        <summary class="margin-m">Miscellaneous tax settings</summary>
+        <div class="margin-m">
+            <label><input type="checkbox" name="heffingskorting" value="true"> Apply standard deduction (heffingskorting)</label>
+        </div>
+        <div class="margin-m">
+            <label><input type="checkbox" name="fiscal_partner" value="true"> Use fiscal partner</label>
+        </div>
+    </details>
     <div class="margin-m">
         <button type="submit">Run simulation</button>
     </div>
@@ -44,9 +53,7 @@
 
 
 <div id="faq">
-
     <h3>Frequently asked questions</h3>
-
     <div>
         <h4>What is Dutch FIRE Calc?</h4>
         <p>
@@ -54,7 +61,6 @@
             It aims to answer the question "how long will my retirement savings last if the next few decades are anything like the past 150 years".
         </p>
     </div>
-
 
     <div>
         <h4>How to determine my withdrawal amount?</h4>
@@ -65,3 +71,11 @@
 
 </div>
 {% endblock content %}
+
+{% block footer %}
+<script>
+document.querySelector('select[name=tax_strategy]').addEventListener('change', function() {
+   document.getElementById('misc-tax-settings').style.display = this.value.indexOf('vermogensbelasting') > -1 ? '' : 'none';
+});
+</script>
+{% endblock footer %}

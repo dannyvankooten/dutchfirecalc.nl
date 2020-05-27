@@ -32,5 +32,6 @@
               </small>
         </footer>
     </div>
+    {% block footer %}{% endblock %}
   </body>
 </html>
