@@ -33,6 +33,7 @@
         <label>Taxes</label>
         <select name="tax_strategy" required>
             <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
+            <option value="vermogensbelasting 2021">vermogensbelasting 2021</option>
             <option value="vermogensbelasting 2022">vermogensbelasting 2022 (voorstel)</option>
             <option value="tax free">tax free</option>
         </select>
