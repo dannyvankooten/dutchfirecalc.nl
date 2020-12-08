@@ -21,6 +21,8 @@ struct Params {
     fees: Option<f32>,
     minimum_remaining: Option<u64>,
     tax_strategy: Option<String>,
+    heffingskorting: Option<bool>,
+    fiscal_partner: Option<bool>,
 }
 
 impl Into<simulator::Vars> for Params {
@@ -33,6 +35,8 @@ impl Into<simulator::Vars> for Params {
            minimum_remaining: self.minimum_remaining.unwrap_or(0),
            years: self.duration,
            tax_strategy: self.tax_strategy.unwrap_or(String::from("")),
+           with_fiscal_partner: self.fiscal_partner.unwrap_or(false),
+           with_heffingskorting: self.heffingskorting.unwrap_or(false),
         }
     }
 }

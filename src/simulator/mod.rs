@@ -13,6 +13,8 @@ pub struct Vars {
     pub yearly_fees: f32,
     pub years: usize,
     pub tax_strategy: String,
+    pub with_heffingskorting: bool,
+    pub with_fiscal_partner: bool,
 }
 
 #[derive(Serialize, Eq, Clone)]
@@ -155,7 +157,7 @@ impl Simulator {
                 withdrawal = if capital < initial_capital { withdrawal_min * cum_inflation } else { withdrawal_max * cum_inflation };
 
                 // calculate taxes every 12th month
-                taxes = if month % 12 == 0 { tax_fn(capital, gains) } else { 0.00 };
+                taxes = if month % 12 == 0 { tax_fn(capital, gains, vars.with_fiscal_partner, vars.with_heffingskorting) } else { 0.00 };
                 
                 // calculate new capital value
                 capital = capital + gains - fees - taxes - withdrawal;              

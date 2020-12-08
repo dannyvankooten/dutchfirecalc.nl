@@ -20,7 +20,7 @@ footer { border-top:1px dotted #AAA; margin:2em 0; padding-top:2em; font-size: 1
 footer svg { vertical-align:middle; }
 small,small a { color:#666; }
 form { font-size: 16px; }
-form > div { margin: 1em 0; }
+.margin-m { margin: 1em 0; }
 label { display: block; }
 input, select {
     width: 240px;
@@ -30,6 +30,8 @@ input, select {
     border: 2px solid #ddd;
     box-sizing: border-box;
 }
+details { cursor: pointer; }
+input[type="checkbox"] { width: auto; vertical-align: middle; }
 select {
     -moz-appearance: none;
     appearance: none;
