@@ -13,6 +13,21 @@ pub fn vermogensbelasting_2020(capital: f32, _gains: f32, _with_partner: bool, _
     return if _with_partner { tax * 2.0 } else { tax };
 }
 
+pub fn vermogensbelasting_2021(capital: f32, _gains: f32, _with_partner: bool, _with_heffingskorting: bool) -> f32 {
+    let capital = if _with_partner { capital / 2.0 } else { capital } - 50_000.00;
+    if capital < 0.00 {
+      return 0.00;
+    }
+
+    let schijf_1 = (capital.min(100_000.00) * 0.019).floor();
+    let schijf_2 = ((0.00 as f32).max(capital.min(1_000_000.00) - 100_000.00) * 0.045).floor();
+	let schijf_3 = ((0.00 as f32).max(capital - 1_000_000.00) * 0.0569).floor();
+	let heffingskorting = if _with_heffingskorting { 2_837.00 } else { 0.00 };
+	let schijven = schijf_1 + schijf_2 + schijf_3;
+    let tax = (0.00 as f32).max((schijven * 0.31).floor() - heffingskorting);
+    return if _with_partner { tax * 2.0 } else { tax };
+}
+
 pub fn vermogensbelasting_2022(capital: f32, _gains: f32, _with_partner: bool, _with_heffingskorting: bool) -> f32 {
   let belastingvrije_voet = if _with_partner { 30_846.00 * 2.0 } else { 30_846.00 };
   if capital < belastingvrije_voet {
