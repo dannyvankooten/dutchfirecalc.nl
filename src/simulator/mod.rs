@@ -121,6 +121,7 @@ impl Simulator {
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
         let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
+            "vermogensbelasting 2021" => taxes::vermogensbelasting_2021,
             "vermogensbelasting 2022" => taxes::vermogensbelasting_2022,
             _=> taxes::tax_free,
         };
