@@ -8,15 +8,13 @@ pub fn vermogensbelasting_2020(capital: f32, _gains: f32, _with_partner: bool, _
     let schijf_2 = ((0.00 as f32).max(capital.min(1_005_573.00) - 72_798.00) * 0.04185).floor();
     let schijf_3 = ((0.00 as f32).max(capital - 1_005_573.00) * 0.0528).floor();
 	let schijven = schijf_1 + schijf_2 + schijf_3;
-	let heffingskorting = 0.00;
-	if _with_heffingskorting && schijven < 68_507 {
+	let heffingskorting = if _with_heffingskorting && schijven < 68_507.00 {
 		if schijven < 20_711.00 {
-			heffingskorting = 2_711.00;
+			2_711.00
+		} else {
+			2_711.00 - (schijven - 20_711.00) * 0.05672
 		}
-		else {
-			heffingskorting = 2_711.00 - (schijven - 20_711.00) * 0.05672;
-		}
-	}
+	} else { 0.00 };
     let tax = (0.00 as f32).max((schijven * 0.30).floor() - heffingskorting);
     return if _with_partner { tax * 2.0 } else { tax };
 }
@@ -31,15 +29,13 @@ pub fn vermogensbelasting_2021(capital: f32, _gains: f32, _with_partner: bool, _
     let schijf_2 = ((0.00 as f32).max(capital.min(1_000_001.00) - 100_001.00) * 0.045).floor();
 	let schijf_3 = ((0.00 as f32).max(capital - 1_000_001.00) * 0.0569).floor();
 	let schijven = schijf_1 + schijf_2 + schijf_3;
-	let heffingskorting = 0.00;
-	if _with_heffingskorting && schijven < 68_507 {
+	let heffingskorting = if _with_heffingskorting && schijven < 68_507.00 {
 		if schijven < 21_043.00 {
-			heffingskorting = 2_837.00;
+			2_837.00
+		} else {
+			2_837.00 - (schijven - 21_043.00) * 0.05977
 		}
-		else {
-			heffingskorting = 2_837.00 - (schijven - 21_043.00) * 0.05977;
-		}
-	}
+	} else { 0.00 };
     let tax = (0.00 as f32).max((schijven * 0.31).floor() - heffingskorting);
     return if _with_partner { tax * 2.0 } else { tax };
 }
