@@ -25,9 +25,9 @@ pub fn vermogensbelasting_2021(capital: f32, _gains: f32, _with_partner: bool, _
       return 0.00;
     }
 
-    let schijf_1 = (capital.min(100_001.00) * 0.019).floor();
-    let schijf_2 = ((0.00 as f32).max(capital.min(1_000_001.00) - 100_001.00) * 0.045).floor();
-	let schijf_3 = ((0.00 as f32).max(capital - 1_000_001.00) * 0.0569).floor();
+    let schijf_1 = (capital.min(100_000.00) * 0.019).floor();
+    let schijf_2 = ((0.00 as f32).max(capital.min(1_000_000.00) - 100_000.00) * 0.045).floor();
+	let schijf_3 = ((0.00 as f32).max(capital - 1_000_000.00) * 0.0569).floor();
 	let schijven = schijf_1 + schijf_2 + schijf_3;
 	let heffingskorting = if _with_heffingskorting && schijven < 68_507.00 {
 		if schijven < 21_043.00 {
@@ -85,8 +85,8 @@ mod tests {
         assert_eq!(vermogensbelasting_2021(0.00, 0.00, false, false), 0.00);
         assert_eq!(vermogensbelasting_2021(50_000.00, 0.00, false, false), 0.00);
 		assert_eq!(vermogensbelasting_2021(100_000.00, 0.00, false, false), 294.00);
-        assert_eq!(vermogensbelasting_2021(250_000.00, 0.00, false, false), 2_387.00);
-        assert_eq!(vermogensbelasting_2021(1_000_000.00, 0.00, false, false), 12_849.00);
+        assert_eq!(vermogensbelasting_2021(250_000.00, 0.00, false, false), 1983.00);
+        assert_eq!(vermogensbelasting_2021(1_000_000.00, 0.00, false, false), 12446.00);
 
 		// TODO: Examples from belastingdienst website.
         //assert_eq!(vermogensbelasting_2021(150_000.00, 100.00, false, false), 972.00);

@@ -272,6 +272,8 @@ mod test {
             tax_strategy: String::new(),
             years: 30,
             minimum_remaining: 0,
+            with_fiscal_partner: false,
+            with_heffingskorting: false,
         });
 
         // better way would be to use a test specific dataset
@@ -287,6 +289,8 @@ mod test {
             tax_strategy: String::new(),
             years: 30,
             minimum_remaining: 0,
+            with_fiscal_partner: false,
+            with_heffingskorting: false,
         });
         assert_eq!(results.success_ratio, 100.0);
     }
