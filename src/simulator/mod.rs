@@ -121,6 +121,7 @@ impl Simulator {
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
         let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
+            "vermogensbelasting 2021" => taxes::vermogensbelasting_2021,
             "vermogensbelasting 2022" => taxes::vermogensbelasting_2022,
             _=> taxes::tax_free,
         };
@@ -271,6 +272,8 @@ mod test {
             tax_strategy: String::new(),
             years: 30,
             minimum_remaining: 0,
+            with_fiscal_partner: false,
+            with_heffingskorting: false,
         });
 
         // better way would be to use a test specific dataset
@@ -286,6 +289,8 @@ mod test {
             tax_strategy: String::new(),
             years: 30,
             minimum_remaining: 0,
+            with_fiscal_partner: false,
+            with_heffingskorting: false,
         });
         assert_eq!(results.success_ratio, 100.0);
     }
