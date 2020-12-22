@@ -85,7 +85,7 @@ mod tests {
         assert_eq!(vermogensbelasting_2021(0.00, 0.00, false, false), 0.00);
         assert_eq!(vermogensbelasting_2021(50_000.00, 0.00, false, false), 0.00);
 		assert_eq!(vermogensbelasting_2021(100_000.00, 0.00, false, false), 294.00);
-        assert_eq!(vermogensbelasting_2021(250_000.00, 0.00, false, false), 2_387.00);
+        assert_eq!(vermogensbelasting_2021(250_000.00, 0.00, false, false), 2_386.00);
         assert_eq!(vermogensbelasting_2021(1_000_000.00, 0.00, false, false), 12_849.00);
 
 		// TODO: Examples from belastingdienst website.
