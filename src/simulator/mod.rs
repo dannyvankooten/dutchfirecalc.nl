@@ -137,6 +137,7 @@ impl Simulator {
         let mut gains : f32;
         let mut fees : f32;
         let aow_start_month : usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0 { vars.aow_starts_after_x_years * 12 } else { 0 };
+        println!("AOW start month: {}", aow_start_month);
 
         // run over each available sample
         for p in 0..samples {
@@ -150,6 +151,7 @@ impl Simulator {
 
                 // calculate capital gains (price increase + dividends)
                 gains = capital * self.data[p+i].roi;
+                
 
                 // calculate fees
                 fees = fees_pct * capital;
@@ -162,8 +164,9 @@ impl Simulator {
                 
                 // calculate new capital value
                 capital = capital + gains - fees - taxes - withdrawal;          
-                
-                // add AOW
+
+                // add retirement income (AOW, ..) to capital
+                // TODO: Use gross income and calculate actual taxes here
                 if aow_start_month > 0 && i >= aow_start_month {
                     capital += vars.aow_amount as f32
                 }
@@ -187,7 +190,7 @@ impl Simulator {
                 end_capital: end_capital,
                 duration: duration,
                 date_start: self.data[p].date.to_owned(),
-                date_end: self.data[p].date.to_owned(),
+                date_end: self.data[p+duration].date.to_owned(),
             });
         }
 

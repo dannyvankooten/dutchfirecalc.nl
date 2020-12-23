@@ -8,6 +8,7 @@ use serde::Serialize;
 use std::path::PathBuf;
 use std::path::Path;
 use std::collections::HashMap;
+use chrono::Datelike;
 
 use crate::simulator;
 
@@ -23,8 +24,9 @@ struct Params {
     tax_strategy: Option<String>,
     heffingskorting: Option<bool>,
     fiscal_partner: Option<bool>,
+    aow_amount: Option<f64>,
+    aow_start_year: Option<usize>,
 }
-
 impl Into<simulator::Vars> for Params {
     fn into(self) -> simulator::Vars {
         simulator::Vars {
@@ -37,8 +39,18 @@ impl Into<simulator::Vars> for Params {
            tax_strategy: self.tax_strategy.unwrap_or(String::from("")),
            with_fiscal_partner: self.fiscal_partner.unwrap_or(false),
            with_heffingskorting: self.heffingskorting.unwrap_or(false),
-           aow_amount: 0,
-           aow_starts_after_x_years: 0,
+           aow_amount: self.aow_amount.unwrap_or(0.00) as u64,
+           aow_starts_after_x_years: match self.aow_start_year {
+               None => 0,
+               Some(y) => {
+                let year = chrono::Local::now().year() as usize;
+                if y > year {
+                    y - year
+                } else { 
+                    0
+                }
+               }
+           }
         }
     }
 }
