@@ -1,7 +1,6 @@
-
-use std::fs;
-use std::cmp::Ordering;
 use serde::Serialize;
+use std::cmp::Ordering;
+use std::fs;
 
 mod taxes;
 
@@ -16,7 +15,7 @@ pub struct Vars {
     pub with_heffingskorting: bool,
     pub with_fiscal_partner: bool,
     pub aow_amount: u64,
-    pub aow_starts_after_x_years: usize, 
+    pub aow_starts_after_x_years: usize,
 }
 
 #[derive(Serialize, Eq, Clone)]
@@ -55,33 +54,33 @@ impl Ord for Period {
     }
 }
 
-
 pub struct Results {
-    pub success_ratio : f32,
+    pub success_ratio: f32,
     pub periods: Vec<Period>,
 }
 
 impl Results {
     pub fn new(mut results: Vec<Period>, successful_runs: usize) -> Results {
-         // sort end capitals & durations (in reverse)
-         results.sort_unstable_by(|a, b| b.cmp(a));
+        // sort end capitals & durations (in reverse)
+        results.sort_unstable_by(|a, b| b.cmp(a));
 
-         return Results{
-             success_ratio: successful_runs as f32 / results.len() as f32 * 100.0,
-             periods: results,
-         }
+        return Results {
+            success_ratio: successful_runs as f32 / results.len() as f32 * 100.0,
+            periods: results,
+        };
     }
 
     pub fn median(&self) -> u64 {
         let size = self.periods.len();
         if size % 2 == 0 {
-            return (self.periods[size / 2 - 1].end_capital + self.periods[size / 2].end_capital) / 2;
+            return (self.periods[size / 2 - 1].end_capital + self.periods[size / 2].end_capital)
+                / 2;
         }
-        
+
         return self.periods[size / 2].end_capital;
     }
 
-    pub fn tail<'a> (&'a self, n : usize) -> Vec<Period> {
+    pub fn tail<'a>(&'a self, n: usize) -> Vec<Period> {
         let mut iter = self.periods.rchunks(n);
         let chunk = iter.next().unwrap();
         let mut chunk = chunk.to_vec();
@@ -89,7 +88,7 @@ impl Results {
         return chunk;
     }
 
-    pub fn head(&self, n : usize) -> &[Period] {
+    pub fn head(&self, n: usize) -> &[Period] {
         let mut iter = self.periods.chunks(n);
         return iter.next().unwrap();
     }
@@ -112,12 +111,12 @@ impl Results {
 //     }
 // }
 
-pub struct Simulator{
-    data: Vec<Month>
+pub struct Simulator {
+    data: Vec<Month>,
 }
 
 impl Simulator {
-    pub fn run(&self, vars : Vars) -> Results {
+    pub fn run(&self, vars: Vars) -> Results {
         let months = vars.years * 12;
         let samples = self.data.len() - months;
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
@@ -125,18 +124,22 @@ impl Simulator {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
             "vermogensbelasting 2021" => taxes::vermogensbelasting_2021,
             "vermogensbelasting 2022" => taxes::vermogensbelasting_2022,
-            _=> taxes::tax_free,
+            _ => taxes::tax_free,
         };
-        let mut successful_runs : usize = 0;
-        let mut results : Vec<Period> = Vec::with_capacity(samples);
+        let mut successful_runs: usize = 0;
+        let mut results: Vec<Period> = Vec::with_capacity(samples);
         let initial_capital = vars.initial_capital as f32;
         let withdrawal_min = vars.initial_withdrawal_min as f32 / 12.00;
         let withdrawal_max = vars.initial_withdrawal_max as f32 / 12.00;
-        let mut withdrawal : f32;
-        let mut taxes : f32;
-        let mut gains : f32;
-        let mut fees : f32;
-        let aow_start_month : usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0 { vars.aow_starts_after_x_years * 12 } else { 0 };
+        let mut withdrawal: f32;
+        let mut taxes: f32;
+        let mut gains: f32;
+        let mut fees: f32;
+        let aow_start_month: usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0 {
+            vars.aow_starts_after_x_years * 12
+        } else {
+            0
+        };
         println!("AOW start month: {}", aow_start_month);
 
         // run over each available sample
@@ -147,23 +150,35 @@ impl Simulator {
 
             for i in 0..months {
                 // adjust withdrawal values for inflation
-                cum_inflation *= 1.0 + self.data[p+i].inflation;
+                cum_inflation *= 1.0 + self.data[p + i].inflation;
 
                 // calculate capital gains (price increase + dividends)
-                gains = capital * self.data[p+i].roi;
-                
+                gains = capital * self.data[p + i].roi;
 
                 // calculate fees
                 fees = fees_pct * capital;
-                
+
                 // determine amount to withdraw
-                withdrawal = if capital < initial_capital { withdrawal_min * cum_inflation } else { withdrawal_max * cum_inflation };
+                withdrawal = if capital < initial_capital {
+                    withdrawal_min * cum_inflation
+                } else {
+                    withdrawal_max * cum_inflation
+                };
 
                 // calculate taxes every 12th month
-                taxes = if i % 12 == 0 { tax_fn(capital, gains, vars.with_fiscal_partner, vars.with_heffingskorting) } else { 0.00 };
-                
+                taxes = if i % 12 == 0 {
+                    tax_fn(
+                        capital,
+                        gains,
+                        vars.with_fiscal_partner,
+                        vars.with_heffingskorting,
+                    )
+                } else {
+                    0.00
+                };
+
                 // calculate new capital value
-                capital = capital + gains - fees - taxes - withdrawal;          
+                capital = capital + gains - fees - taxes - withdrawal;
 
                 // add retirement income (AOW, ..) to capital
                 // TODO: Use gross income and calculate actual taxes here
@@ -177,20 +192,20 @@ impl Simulator {
 
                 duration += 1;
             }
-          
+
             // adjust end capital for inflation
             let end_capital = (capital.max(0.00) / cum_inflation) as u64;
 
-            // run succeeded if we have more money left than intended 
+            // run succeeded if we have more money left than intended
             if end_capital > vars.minimum_remaining {
                 successful_runs += 1;
             }
-            
-            results.push(Period{
+
+            results.push(Period {
                 end_capital: end_capital,
                 duration: duration,
                 date_start: self.data[p].date.to_owned(),
-                date_end: self.data[p+duration].date.to_owned(),
+                date_end: self.data[p + duration].date.to_owned(),
             });
         }
 
@@ -199,41 +214,41 @@ impl Simulator {
 }
 
 pub fn new() -> Simulator {
-    let data : Vec<Month> = CsvRow::from_file("public/data.csv").windows(2).map(|r| {
-        let price_change = r[1].price / r[0].price - 1.00;
-        let inflation_change = r[1].cpi / r[0].cpi - 1.00;
-        let div_yield = r[1].dividend / r[1].price / 12.00;
+    let data: Vec<Month> = CsvRow::from_file("public/data.csv")
+        .windows(2)
+        .map(|r| {
+            let price_change = r[1].price / r[0].price - 1.00;
+            let inflation_change = r[1].cpi / r[0].cpi - 1.00;
+            let div_yield = r[1].dividend / r[1].price / 12.00;
 
-        return Month{
-            date: r[1].date.to_owned(),
-            roi: price_change + div_yield,
-            inflation: inflation_change,
-        };
-    }).collect();
+            return Month {
+                date: r[1].date.to_owned(),
+                roi: price_change + div_yield,
+                inflation: inflation_change,
+            };
+        })
+        .collect();
 
-    Simulator {
-        data
-    }
+    Simulator { data }
 }
-
 
 #[derive(Debug)]
 struct CsvRow {
     date: String,
-    price : f32,
+    price: f32,
     dividend: f32,
     cpi: f32,
 }
 
 #[derive(Debug)]
 struct Month {
-    roi : f32,
-    inflation : f32,
+    roi: f32,
+    inflation: f32,
     date: String,
 }
 
 impl CsvRow {
-    fn parse_date(d : &str) -> String {
+    fn parse_date(d: &str) -> String {
         let mut parts = d.split_terminator('.');
         let year = parts.next().unwrap();
         let month = parts.next().unwrap();
@@ -247,31 +262,33 @@ impl CsvRow {
 
     fn from_file<P: AsRef<std::path::Path>>(path: P) -> Vec<CsvRow> {
         let input = fs::read_to_string(path).unwrap();
-        let dataset : Vec<CsvRow> = input.lines()
+        let dataset: Vec<CsvRow> = input
+            .lines()
             .skip(1) // skip heading
             .map(|l| {
-                let data : Vec<&str> = l.split_terminator(',').collect();
-                    
-                CsvRow{
+                let data: Vec<&str> = l.split_terminator(',').collect();
+
+                CsvRow {
                     date: Self::parse_date(data[0]),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
                     dividend: data[2].to_owned().parse::<f32>().unwrap_or(0.0),
                     cpi: data[4].to_owned().parse::<f32>().unwrap(),
                 }
-            }).collect();
+            })
+            .collect();
 
         dataset
     }
 }
 
-#[cfg(test)] 
+#[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn test_simulator_run() {
         let sim = new();
-        let results = sim.run(Vars{
+        let results = sim.run(Vars {
             initial_capital: 100,
             initial_withdrawal_min: 4,
             initial_withdrawal_max: 4,
@@ -290,7 +307,7 @@ mod test {
         assert_eq!(results.success_ratio < 99.0, true);
 
         // anoter obvious one
-        let results = sim.run(Vars{
+        let results = sim.run(Vars {
             initial_capital: 100,
             initial_withdrawal_min: 0,
             initial_withdrawal_max: 0,
@@ -309,7 +326,7 @@ mod test {
     #[test]
     fn test_aow() {
         let sim = new();
-        let results = sim.run(Vars{
+        let results = sim.run(Vars {
             initial_capital: 100,
             initial_withdrawal_min: 50,
             initial_withdrawal_max: 50,
@@ -326,28 +343,27 @@ mod test {
         assert_eq!(results.success_ratio, 100.0);
     }
 
-
     #[test]
     fn test_results() {
         let periods = vec![
-            Period{
+            Period {
                 duration: 30,
                 end_capital: 400,
                 date_start: String::new(),
                 date_end: String::new(),
             },
-            Period{
+            Period {
                 duration: 30,
                 end_capital: 100,
                 date_start: String::new(),
                 date_end: String::new(),
             },
-            Period{
+            Period {
                 duration: 30,
                 end_capital: 900,
                 date_start: String::new(),
                 date_end: String::new(),
-            }
+            },
         ];
         let results = Results::new(periods, 3);
         assert_eq!(results.median(), 400);
@@ -356,7 +372,6 @@ mod test {
         assert_eq!(results.tail(1)[0].end_capital, 100);
         assert_eq!(results.tail(10)[0].end_capital, 100);
     }
-
 
     #[test]
     fn test_parse_date() {
@@ -367,6 +382,5 @@ mod test {
         assert_eq!(CsvRow::parse_date("2019.1"), "2019-10");
         assert_eq!(CsvRow::parse_date("2019.11"), "2019-11");
         assert_eq!(CsvRow::parse_date("2019.12"), "2019-12");
-
     }
 }

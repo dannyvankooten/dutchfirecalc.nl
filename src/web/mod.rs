@@ -1,14 +1,14 @@
-use rocket_contrib::templates::Template;
+use chrono::Datelike;
+use num_format::{Locale, ToFormattedString};
+use rocket::request::{Form, FromForm};
 use rocket::response::NamedFile;
 use rocket::State;
-use rocket::request::{FromForm, Form};
-use num_format::{Locale, ToFormattedString};
-use rocket_contrib::templates::tera::{Context, Value, to_value, Error};
+use rocket_contrib::templates::tera::{to_value, Context, Error, Value};
+use rocket_contrib::templates::Template;
 use serde::Serialize;
-use std::path::PathBuf;
-use std::path::Path;
 use std::collections::HashMap;
-use chrono::Datelike;
+use std::path::Path;
+use std::path::PathBuf;
 
 use crate::simulator;
 
@@ -30,27 +30,27 @@ struct Params {
 impl Into<simulator::Vars> for Params {
     fn into(self) -> simulator::Vars {
         simulator::Vars {
-           initial_capital: self.capital,
-           initial_withdrawal_min: self.withdrawal_min,
-           initial_withdrawal_max: self.withdrawal_max.unwrap_or(self.withdrawal_min),
-           yearly_fees: self.fees.unwrap_or(0.00),
-           minimum_remaining: self.minimum_remaining.unwrap_or(0),
-           years: self.duration,
-           tax_strategy: self.tax_strategy.unwrap_or(String::from("")),
-           with_fiscal_partner: self.fiscal_partner.unwrap_or(false),
-           with_heffingskorting: self.heffingskorting.unwrap_or(false),
-           aow_amount: self.aow_amount.unwrap_or(0.00) as u64,
-           aow_starts_after_x_years: match self.aow_start_year {
-               None => 0,
-               Some(y) => {
-                let year = chrono::Local::now().year() as usize;
-                if y > year {
-                    y - year
-                } else { 
-                    0
+            initial_capital: self.capital,
+            initial_withdrawal_min: self.withdrawal_min,
+            initial_withdrawal_max: self.withdrawal_max.unwrap_or(self.withdrawal_min),
+            yearly_fees: self.fees.unwrap_or(0.00),
+            minimum_remaining: self.minimum_remaining.unwrap_or(0),
+            years: self.duration,
+            tax_strategy: self.tax_strategy.unwrap_or(String::from("")),
+            with_fiscal_partner: self.fiscal_partner.unwrap_or(false),
+            with_heffingskorting: self.heffingskorting.unwrap_or(false),
+            aow_amount: self.aow_amount.unwrap_or(0.00) as u64,
+            aow_starts_after_x_years: match self.aow_start_year {
+                None => 0,
+                Some(y) => {
+                    let year = chrono::Local::now().year() as usize;
+                    if y > year {
+                        y - year
+                    } else {
+                        0
+                    }
                 }
-               }
-           }
+            },
         }
     }
 }
@@ -61,9 +61,8 @@ fn index() -> Template {
     Template::render("index", &context)
 }
 
-
 #[get("/sim?<params..>")]
-fn sim(sim: State<simulator::Simulator>, params : Form<Params>) -> Template {
+fn sim(sim: State<simulator::Simulator>, params: Form<Params>) -> Template {
     let params = params.into_inner();
     let results = sim.run(params.clone().into());
 
@@ -76,8 +75,6 @@ fn sim(sim: State<simulator::Simulator>, params : Form<Params>) -> Template {
     context.insert("samples", &results.periods.len());
     return Template::render("sim", &context);
 }
-
-
 
 #[get("/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
@@ -93,7 +90,7 @@ pub fn run() {
         .mount("/", routes![index, files, sim])
         .attach(Template::custom(|engines| {
             engines.tera.register_filter("money", format_money)
-         }))
+        }))
         .manage(simulator)
         .launch();
 }
@@ -101,6 +98,6 @@ pub fn run() {
 fn format_money(v: Value, _params: HashMap<String, Value>) -> Result<Value, Error> {
     match v.as_u64() {
         Some(i) => Ok(to_value(i.to_formatted_string(&Locale::en)).unwrap()),
-        _ => Ok(v)
+        _ => Ok(v),
     }
 }
