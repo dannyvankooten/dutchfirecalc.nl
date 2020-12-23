@@ -285,6 +285,7 @@ dependencies = [
 name = "dutchfirecalc"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "num-format",
  "rocket",
  "rocket_contrib",

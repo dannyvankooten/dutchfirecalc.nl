@@ -1,7 +1,9 @@
 
 use std::fs;
-use serde::Serialize;
+use std::convert::TryInto;
 use std::cmp::Ordering;
+use serde::Serialize;
+use chrono::prelude::*;
 
 mod taxes;
 
@@ -15,6 +17,8 @@ pub struct Vars {
     pub tax_strategy: String,
     pub with_heffingskorting: bool,
     pub with_fiscal_partner: bool,
+    pub aow_amount: u64,
+    pub aow_start_year: usize, 
 }
 
 #[derive(Serialize, Eq, Clone)]
@@ -134,22 +138,23 @@ impl Simulator {
         let mut taxes : f32;
         let mut gains : f32;
         let mut fees : f32;
+        let aow_start_month : usize = if vars.aow_start_year > 0 && vars.aow_amount > 0 { 
+            let local: DateTime<Local> = Local::now();
+            ((vars.aow_start_year as isize - local.year() as isize) * 12).try_into().unwrap_or(0)
+        } else { 0 };
 
         // run over each available sample
         for p in 0..samples {
             let mut capital = initial_capital;
             let mut cum_inflation = 1.00;
-            let month_start_index = p;
-            let month_end_index = p + months;
+            let mut duration = 0;
 
-            // run over each month 
-            let mut month = month_start_index;
-            while month < month_end_index {
+            for i in 0..months {
                 // adjust withdrawal values for inflation
-                cum_inflation *= 1.0 + self.data[month].inflation;
+                cum_inflation *= 1.0 + self.data[p+i].inflation;
 
                 // calculate capital gains (price increase + dividends)
-                gains = capital * self.data[month].roi;
+                gains = capital * self.data[p+i].roi;
 
                 // calculate fees
                 fees = fees_pct * capital;
@@ -158,19 +163,23 @@ impl Simulator {
                 withdrawal = if capital < initial_capital { withdrawal_min * cum_inflation } else { withdrawal_max * cum_inflation };
 
                 // calculate taxes every 12th month
-                taxes = if month % 12 == 0 { tax_fn(capital, gains, vars.with_fiscal_partner, vars.with_heffingskorting) } else { 0.00 };
+                taxes = if i % 12 == 0 { tax_fn(capital, gains, vars.with_fiscal_partner, vars.with_heffingskorting) } else { 0.00 };
                 
                 // calculate new capital value
-                capital = capital + gains - fees - taxes - withdrawal;              
+                capital = capital + gains - fees - taxes - withdrawal;          
+                
+                // add AOW
+                if aow_start_month > 0 && i >= aow_start_month {
+                    capital += vars.aow_amount as f32
+                }
 
                 if capital <= 0.0 {
                     break;
                 }
 
-                month += 1;
+                duration += 1;
             }
-
-
+          
             // adjust end capital for inflation
             let end_capital = (capital.max(0.00) / cum_inflation) as u64;
 
@@ -181,9 +190,9 @@ impl Simulator {
             
             results.push(Period{
                 end_capital: end_capital,
-                duration: month - month_start_index,
-                date_start: self.data[month_start_index].date.to_owned(),
-                date_end: self.data[month_end_index].date.to_owned(),
+                duration: duration,
+                date_start: self.data[p].date.to_owned(),
+                date_end: self.data[p].date.to_owned(),
             });
         }
 
@@ -274,6 +283,8 @@ mod test {
             minimum_remaining: 0,
             with_fiscal_partner: false,
             with_heffingskorting: false,
+            aow_amount: 0,
+            aow_start_year: 0,
         });
 
         // better way would be to use a test specific dataset
@@ -291,9 +302,33 @@ mod test {
             minimum_remaining: 0,
             with_fiscal_partner: false,
             with_heffingskorting: false,
+            aow_amount: 0,
+            aow_start_year: 0,
         });
         assert_eq!(results.success_ratio, 100.0);
     }
+
+    #[test]
+    fn test_aow() {
+        let now: DateTime<Local> = Local::now();
+        let sim = new();
+        let results = sim.run(Vars{
+            initial_capital: 100,
+            initial_withdrawal_min: 50,
+            initial_withdrawal_max: 50,
+            yearly_fees: 0.00,
+            tax_strategy: String::new(),
+            years: 10,
+            minimum_remaining: 0,
+            with_fiscal_partner: false,
+            with_heffingskorting: false,
+            aow_amount: 50,
+            aow_start_year: (now.year() + 1) as usize,
+        });
+
+        assert_eq!(results.success_ratio, 100.0);
+    }
+
 
     #[test]
     fn test_results() {
