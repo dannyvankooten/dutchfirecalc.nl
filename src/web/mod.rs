@@ -38,7 +38,7 @@ impl Into<simulator::Vars> for Params {
            with_fiscal_partner: self.fiscal_partner.unwrap_or(false),
            with_heffingskorting: self.heffingskorting.unwrap_or(false),
            aow_amount: 0,
-           aow_start_year: 0,
+           aow_starts_after_x_years: 0,
         }
     }
 }

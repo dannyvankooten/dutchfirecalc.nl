@@ -1,9 +1,7 @@
 
 use std::fs;
-use std::convert::TryInto;
 use std::cmp::Ordering;
 use serde::Serialize;
-use chrono::prelude::*;
 
 mod taxes;
 
@@ -18,7 +16,7 @@ pub struct Vars {
     pub with_heffingskorting: bool,
     pub with_fiscal_partner: bool,
     pub aow_amount: u64,
-    pub aow_start_year: usize, 
+    pub aow_starts_after_x_years: usize, 
 }
 
 #[derive(Serialize, Eq, Clone)]
@@ -138,10 +136,7 @@ impl Simulator {
         let mut taxes : f32;
         let mut gains : f32;
         let mut fees : f32;
-        let aow_start_month : usize = if vars.aow_start_year > 0 && vars.aow_amount > 0 { 
-            let local: DateTime<Local> = Local::now();
-            ((vars.aow_start_year as isize - local.year() as isize) * 12).try_into().unwrap_or(0)
-        } else { 0 };
+        let aow_start_month : usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0 { vars.aow_starts_after_x_years * 12 } else { 0 };
 
         // run over each available sample
         for p in 0..samples {
@@ -284,7 +279,7 @@ mod test {
             with_fiscal_partner: false,
             with_heffingskorting: false,
             aow_amount: 0,
-            aow_start_year: 0,
+            aow_starts_after_x_years: 0,
         });
 
         // better way would be to use a test specific dataset
@@ -303,14 +298,13 @@ mod test {
             with_fiscal_partner: false,
             with_heffingskorting: false,
             aow_amount: 0,
-            aow_start_year: 0,
+            aow_starts_after_x_years: 0,
         });
         assert_eq!(results.success_ratio, 100.0);
     }
 
     #[test]
     fn test_aow() {
-        let now: DateTime<Local> = Local::now();
         let sim = new();
         let results = sim.run(Vars{
             initial_capital: 100,
@@ -323,7 +317,7 @@ mod test {
             with_fiscal_partner: false,
             with_heffingskorting: false,
             aow_amount: 50,
-            aow_start_year: (now.year() + 1) as usize,
+            aow_starts_after_x_years: 1,
         });
 
         assert_eq!(results.success_ratio, 100.0);
