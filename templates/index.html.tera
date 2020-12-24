@@ -47,11 +47,11 @@
             <label><input type="checkbox" name="fiscal_partner" value="true"> Use fiscal partner</label>
         </div>
     </details>
-    <div class="margin-m" style="display: flex;">
-        <div style="margin-right: 1em;">
+    <div class="row margin-m">
+        <div> 
             <label>Retirement income</label>
             <input type="number" min="0" step="0.01" name="aow_amount" placeholder="&euro;0">
-            <div><small>Net retirement income (like <a href="https://www.svb.nl/nl/aow/bedragen-aow/aow-bedragen">AOW</a>) per month.</small></div>
+            <div><small>Net retirement income (like <a href="https://www.svb.nl/nl/aow/bedragen-aow/aow-bedragen">AOW</a>) per month. This will automatically be adjusted for inflation.</small></div>
         </div>
         <div>
             <label>Start year</label>

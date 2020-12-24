@@ -57,6 +57,11 @@ button {
 }
 @media(max-width: 560px) {
     table { font-size: 16px; }
+    .row > div { margin-top: 1em; }
+}
+@media(min-width:560px) {
+    .row { display: flex; }
+    .row > div { margin-right: 1em; }
 }
 
 .line {

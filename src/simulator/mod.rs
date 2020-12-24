@@ -14,7 +14,7 @@ pub struct Vars {
     pub tax_strategy: String,
     pub with_heffingskorting: bool,
     pub with_fiscal_partner: bool,
-    pub aow_amount: u64,
+    pub aow_amount: f64,
     pub aow_starts_after_x_years: usize,
 }
 
@@ -135,12 +135,11 @@ impl Simulator {
         let mut taxes: f32;
         let mut gains: f32;
         let mut fees: f32;
-        let aow_start_month: usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0 {
+        let aow_start_month: usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0.00 {
             vars.aow_starts_after_x_years * 12
         } else {
             0
         };
-        println!("AOW start month: {}", aow_start_month);
 
         // run over each available sample
         for p in 0..samples {
@@ -180,10 +179,10 @@ impl Simulator {
                 // calculate new capital value
                 capital = capital + gains - fees - taxes - withdrawal;
 
-                // add retirement income (AOW, ..) to capital
+                // add (inflation adjusted) retirement income (AOW, ..) to capital
                 // TODO: Use gross income and calculate actual taxes here
                 if aow_start_month > 0 && i >= aow_start_month {
-                    capital += vars.aow_amount as f32
+                    capital += vars.aow_amount as f32 * cum_inflation 
                 }
 
                 if capital <= 0.0 {
@@ -298,7 +297,7 @@ mod test {
             minimum_remaining: 0,
             with_fiscal_partner: false,
             with_heffingskorting: false,
-            aow_amount: 0,
+            aow_amount: 0.00,
             aow_starts_after_x_years: 0,
         });
 
@@ -317,7 +316,7 @@ mod test {
             minimum_remaining: 0,
             with_fiscal_partner: false,
             with_heffingskorting: false,
-            aow_amount: 0,
+            aow_amount: 0.00,
             aow_starts_after_x_years: 0,
         });
         assert_eq!(results.success_ratio, 100.0);
@@ -336,7 +335,7 @@ mod test {
             minimum_remaining: 0,
             with_fiscal_partner: false,
             with_heffingskorting: false,
-            aow_amount: 50,
+            aow_amount: 50.00,
             aow_starts_after_x_years: 1,
         });
 
