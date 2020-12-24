@@ -82,7 +82,7 @@ The median end capital was €<strong>{{ median | money }}</strong>.
 </p>
 
 <p>
-    <small><a href="/">Go back</a></small>
+    <small><a href="javascript:history.go(-1);">Go back</a></small>
 </p>
 
 <script src="/d3.min.js"></script>
