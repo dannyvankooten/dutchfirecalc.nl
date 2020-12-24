@@ -51,10 +51,6 @@
         <th>Net additional retirement income</th>
         <td>€{{ params.aow_amount | money }}{% if params.aow_start_year %}, starting in {{ params.aow_start_year }}.{% endif %}</td>
     </tr>
-     <tr>
-         <th>Tax strategy</th>
-        <td>{{ params.tax_strategy }}</td>
-    </tr>
 </table>
 
 <p>

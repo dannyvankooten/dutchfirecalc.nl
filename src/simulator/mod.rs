@@ -135,7 +135,8 @@ impl Simulator {
         let mut taxes: f32;
         let mut gains: f32;
         let mut fees: f32;
-        let aow_start_month: usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0.00 {
+        let aow_start_month: usize = if vars.aow_starts_after_x_years > 0 && vars.aow_amount > 0.00
+        {
             vars.aow_starts_after_x_years * 12
         } else {
             0
@@ -182,7 +183,7 @@ impl Simulator {
                 // add (inflation adjusted) retirement income (AOW, ..) to capital
                 // TODO: Use gross income and calculate actual taxes here
                 if aow_start_month > 0 && i >= aow_start_month {
-                    capital += vars.aow_amount as f32 * cum_inflation 
+                    capital += vars.aow_amount as f32 * cum_inflation
                 }
 
                 if capital <= 0.0 {
