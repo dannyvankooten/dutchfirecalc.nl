@@ -118,7 +118,7 @@ pub struct Simulator {
 impl Simulator {
     pub fn run(&self, vars: Vars) -> Results {
         let months = vars.years * 12;
-        let samples = self.data.len() - months;
+        let samples = self.data.len() - 1;
         let fees_pct = vars.yearly_fees / 12.00 / 100.00;
         let tax_fn = match vars.tax_strategy.as_str() {
             "vermogensbelasting 2020" => taxes::vermogensbelasting_2020,
@@ -147,8 +147,14 @@ impl Simulator {
             let mut capital = initial_capital;
             let mut cum_inflation = 1.00;
             let mut duration = 0;
+            let partial = p > ( samples - months );
 
             for i in 0..months {
+                // stop as soon we ran out of data (for partial periods)
+                if ( p + i ) >= self.data.len() {
+                    break;
+                }
+
                 // adjust withdrawal values for inflation
                 cum_inflation *= 1.0 + self.data[p + i].inflation;
 
@@ -196,17 +202,20 @@ impl Simulator {
             // adjust end capital for inflation
             let end_capital = (capital.max(0.00) / cum_inflation) as u64;
 
-            // run succeeded if we have more money left than intended
-            if end_capital > vars.minimum_remaining {
+            // only count full simulation periods towards successful runs
+            if ! partial && end_capital > vars.minimum_remaining {
                 successful_runs += 1;
             }
 
-            results.push(Period {
-                end_capital: end_capital,
-                duration: duration,
-                date_start: self.data[p].date.to_owned(),
-                date_end: self.data[p + duration].date.to_owned(),
-            });
+            // add all completed periods & failed partial periods towards results
+            if ! partial || end_capital <= 0 {
+                results.push(Period {
+                  end_capital: end_capital,
+                  duration: duration,
+                  date_start: self.data[p].date.to_owned(),
+                  date_end: self.data[p + duration].date.to_owned(),
+                });
+            }
         }
 
         return Results::new(results, successful_runs);
