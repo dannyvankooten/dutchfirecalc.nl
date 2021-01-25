@@ -32,9 +32,9 @@
     <div class="margin-m">
         <label>Taxes</label>
         <select name="tax_strategy" required>
-            <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
             <option value="vermogensbelasting 2021">vermogensbelasting 2021</option>
             <option value="vermogensbelasting 2022">vermogensbelasting 2022 (voorstel)</option>
+            <option value="vermogensbelasting 2020">vermogensbelasting 2020</option>
             <option value="tax free">tax free</option>
         </select>
     </div>
@@ -48,7 +48,7 @@
         </div>
     </details>
     <div class="row margin-m">
-        <div> 
+        <div>
             <label>Retirement income</label>
             <input type="number" min="0" step="0.01" name="aow_amount" placeholder="&euro;0">
             <div><small>Net retirement income (like <a href="https://www.svb.nl/nl/aow/bedragen-aow/aow-bedragen">AOW</a>) per month. This will automatically be adjusted for inflation.</small></div>
@@ -57,7 +57,7 @@
             <label>Start year</label>
             <input type="number" min="2021" step="1" name="aow_start_year">
             <div><small>The year your retirement income starts to pay out.</small></div>
-        </div>  
+        </div>
 
     </div>
     <div class="margin-m">
