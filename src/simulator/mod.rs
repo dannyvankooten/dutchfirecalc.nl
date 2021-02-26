@@ -379,12 +379,6 @@ mod test {
 
     #[test]
     fn test_parse_date() {
-        assert_eq!(CsvRow::parse_date("2019.01"), "2019-01");
-        assert_eq!(CsvRow::parse_date("2019.02"), "2019-02");
-
-        // this happens because of copying the dataset from XLS -> CSV
-        assert_eq!(CsvRow::parse_date("2019.1"), "2019-10");
-        assert_eq!(CsvRow::parse_date("2019.11"), "2019-11");
-        assert_eq!(CsvRow::parse_date("2019.12"), "2019-12");
+        assert_eq!(CsvRow::parse_date("2019-01-01"), "2019-01");
     }
 }
