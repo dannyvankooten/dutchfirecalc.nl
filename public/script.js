@@ -13,7 +13,7 @@ var svg = d3.select(el)
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
-var parseDate = d3.timeParse("%Y.%m");
+var parseDate = d3.timeParse("%Y-%m");
 var data, x, y;
 
 function parseRow(d, i) {
@@ -23,10 +23,10 @@ function parseRow(d, i) {
     }
 
     return {
-        date: parseDate(d.Date.replace(/\.1$/, ".10")),
-        price: +d.P,
-        dividend: +d.D,
-        cpi: +d.CPI
+        date: parseDate(d.Date.substring(0, 7)),
+        price: d.P,
+        dividend: d.D,
+        cpi: d.CPI
     }
 }
 

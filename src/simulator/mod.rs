@@ -258,14 +258,9 @@ struct Month {
 
 impl CsvRow {
     fn parse_date(d: &str) -> String {
-        let mut parts = d.split_terminator('.');
+        let mut parts = d.split_terminator('-');
         let year = parts.next().unwrap();
         let month = parts.next().unwrap();
-        let month = match month {
-            "1" => "10",
-            _ => month,
-        };
-
         return format!("{}-{}", year, month);
     }
 
@@ -281,7 +276,7 @@ impl CsvRow {
                     date: Self::parse_date(data[0]),
                     price: data[1].to_owned().parse::<f32>().unwrap(),
                     dividend: data[2].to_owned().parse::<f32>().unwrap_or(0.0),
-                    cpi: data[4].to_owned().parse::<f32>().unwrap(),
+                    cpi: data[3].to_owned().parse::<f32>().unwrap(),
                 }
             })
             .collect();
