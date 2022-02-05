@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+bin/fetch_latest_data.py
 
 ssh -t dutchfirecalc@s1.dvk.co "\
     cd ~/dutchfirecalc.nl; \
