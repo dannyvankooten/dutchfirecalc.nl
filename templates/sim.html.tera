@@ -14,7 +14,7 @@
     <tr data-start="{{ r.date_start }}" data-end="{{ r.date_end }}">
         <td>{{ r.date_start }} / {{ r.date_end }}</td>
         <td>€{{ r.end_capital | money }}</td>
-        <td>{{ r.duration / 12 | round }} years</td>
+        <td>{{ r.duration / 12 | years }} years</td>
     </tr>
 {% endfor %}
 </tbody>
@@ -37,7 +37,7 @@
     </tr>
     <tr>
         <th>Yearly fees</th>
-        <td>{{ params.fees | round(precision=2) }}%</td>
+        <td>{{ params.fees | round }}%</td>
     </tr>
     <tr>
         <th>Minimum remaining capital</th>

@@ -89,7 +89,8 @@ pub fn run() {
     rocket::ignite()
         .mount("/", routes![index, files, sim])
         .attach(Template::custom(|engines| {
-            engines.tera.register_filter("money", format_money)
+            engines.tera.register_filter("money", format_money);
+            engines.tera.register_filter("years", format_years);
         }))
         .manage(simulator)
         .launch();
@@ -98,6 +99,13 @@ pub fn run() {
 fn format_money(v: Value, _params: HashMap<String, Value>) -> Result<Value, Error> {
     match v.as_u64() {
         Some(i) => Ok(to_value(i.to_formatted_string(&Locale::en)).unwrap()),
+        _ => Ok(v),
+    }
+}
+
+fn format_years(v: Value, _params: HashMap<String, Value>) -> Result<Value, Error> {
+    match v.as_f64() {
+        Some(i) => Ok(to_value(i.round() as u64).unwrap()),
         _ => Ok(v),
     }
 }
